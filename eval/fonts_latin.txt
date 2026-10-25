@@ -1,0 +1,12 @@
+/tmp/gf/ofl/sourcesans3/SourceSans3[wght].ttf
+/tmp/gf/ofl/lato/Lato-Regular.ttf
+/tmp/gf/ofl/firasans/FiraSans-Regular.ttf
+/tmp/gf/ofl/ptsans/PT_Sans-Web-Regular.ttf
+/tmp/gf/ofl/worksans/WorkSans[wght].ttf
+/tmp/gf/ofl/montserrat/Montserrat[wght].ttf
+/tmp/gf/ofl/inter/Inter[opsz,wght].ttf
+/tmp/gf/ofl/notosansjp/NotoSansJP[wght].ttf
+/tmp/gf/ofl/ibmplexsansjp/IBMPlexSansJP-Regular.ttf
+/tmp/gf/ofl/mplus1p/MPLUS1p-Regular.ttf
+/tmp/gf/ofl/zenkakugothicnew/ZenKakuGothicNew-Regular.ttf
+/tmp/gf/ofl/kiwimaru/KiwiMaru-Regular.ttf

@@ -1,0 +1,8 @@
+node_modules/
+__pycache__/
+*.pyc
+eval/ds/
+eval/v/
+eval/t/
+eval/js*/
+*.kgmodel.json

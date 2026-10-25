@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kerning Grouper 学習ツール</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <div class="eyebrow">Kerning Grouper</div>
+      <h1>学習ツール</h1>
+      <div class="muted">プロのフォントのカーニングから、計算の設定と補正モデルを学習します。データはこのPCの外に出ません。</div>
+    </div>
+    <span class="badge" data-version>core —</span>
+  </header>
+  <nav class="steps" data-steps>
+    <button data-tab="fonts" class="active"><span class="step">1</span><span>学習元フォント<small data-sub="fonts">OTF/TTF を登録</small></span></button>
+    <button data-tab="truth"><span class="step">2</span><span>正解データ<small data-sub="truth"></small></span></button>
+    <button data-tab="train"><span class="step">3</span><span>評価・学習<small data-sub="train"></small></span></button>
+    <button data-tab="group"><span class="step">4</span><span>グループ<small data-sub="group"></small></span></button>
+    <button data-tab="export"><span class="step">5</span><span>書き出し<small data-sub="export"></small></span></button>
+  </nav>
+  <main class="content">
+
+    <section class="pane" data-pane="fonts">
+      <label class="drop-zone" data-drop>
+        <input type="file" accept=".otf,.ttf,.woff,.woff2" multiple data-file hidden>
+        <b>フォントをドロップ、またはクリックして選択</b>
+        <small>複数選べます。2つ以上あるとフォント単位の交差検証（1つ抜き）で、知らないフォントへの精度を測ります。</small>
+      </label>
+      <div class="msg" data-msg></div>
+      <div data-fontlist></div>
+      <h3>対象の字</h3>
+      <div class="row presets" data-presets></div>
+      <textarea data-chars rows="3" spellcheck="false"></textarea>
+      <div class="row two">
+        <label>基準の字（スペース区切り）<input data-refs spellcheck="false"></label>
+        <label>最小の字間（1000 UPM）<input type="number" data-min min="0" max="200" step="1"></label>
+      </div>
+      <small class="help">基準と最小の字間は Web 版の初期値と同じです。学習で決まるのは光学の割合・種類ごとの字間・上限と、その残りの補正です。</small>
+    </section>
+
+    <section class="pane" data-pane="truth">
+      <p class="muted">各フォントのカーニング（正解）として読み取れた内容です。kern 機能の PairPos（クラス・個別・拡張ルックアップ）と、なければ旧 kern テーブルを読みます。</p>
+      <div class="table-wrap"><table class="data" data-truth></table></div>
+      <div data-truthnotes></div>
+    </section>
+
+    <section class="pane" data-pane="train">
+      <div class="runrow">
+        <button class="primary" data-run>学習する</button>
+        <div class="prog hidden" data-prog><div class="track"><div class="fill" data-progfill></div></div><small data-proglabel></small></div>
+      </div>
+      <div data-result></div>
+      <div class="vm">
+        <h3>Web 版の値の補正モデル（欧文）</h3>
+        <p class="muted">英字どうしのペアで、Web 版が付ける値の大きさを、ここで使うフォントから学習し直します。書き出した <code>kern-model.js</code> を Web 版の <code>src/kern-model.js</code> と差し替えてビルドすると反映されます。</p>
+        <div class="runrow"><button data-vrun>補正モデルを学習する</button><a class="hidden" data-vdl href="/api/valuemodel" download="kern-model.js"><button class="primary" tabindex="-1">kern-model.js を書き出す</button></a></div>
+        <div data-vresult></div>
+      </div>
+    </section>
+
+    <section class="pane" data-pane="group">
+      <p class="muted">プロのカーニングクラスを「同じグループにすべき字の組」とみなし、グループ作成の判定がどれだけ一致するかを、強さと許容の倍率を変えて調べます。</p>
+      <div data-group></div>
+    </section>
+
+    <section class="pane" data-pane="export">
+      <div class="row two">
+        <label>モデル名<input data-name value="kerning-model" spellcheck="false"></label>
+        <div class="dl"><button class="primary" data-download>モデルを書き出す（.kgmodel.json）</button></div>
+      </div>
+      <div data-export></div>
+    </section>
+  </main>
+  <footer class="foot">ローカル実行（127.0.0.1）。学習に使えるのは、ライセンス上許されたフォント（OFL や自社フォントなど）だけです。</footer>
+</div>
+<script src="/static/app.js"></script>
+</body>
+</html>

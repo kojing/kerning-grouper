@@ -1,0 +1,28 @@
+{
+  "name": "kerning-grouper",
+  "version": "0.5.0",
+  "description": "Offline Confluence kerning shape grouping tool",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node test-core.mjs && node test-kerning.mjs",
+    "test:ui": "node test-ui.mjs",
+    "test:kerning-ui": "node test-kerning-ui.mjs",
+    "test:japanese": "node test-japanese.mjs",
+    "test:grouping": "node test-grouping-strength.mjs",
+    "test:mixscript": "node test-mixscript.mjs",
+    "test:tsume": "node test-tsume.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "esbuild": "0.28.2",
+    "opentype.js": "1.3.4",
+    "playwright": "1.64.0"
+  },
+  "private": true,
+  "devDependencies": {
+    "@sparticuz/chromium": "133.0.0"
+  }
+}

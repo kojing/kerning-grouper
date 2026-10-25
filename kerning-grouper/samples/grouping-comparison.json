@@ -1,0 +1,350 @@
+[
+  {
+    "strength": 0,
+    "font": "Noto Sans JP / Regular 400 / renamed static subset",
+    "glyphs": 174,
+    "pairs": 30276,
+    "groups": {
+      "first": 174,
+      "second": 172
+    },
+    "classPairs": 15020,
+    "exceptions": 0,
+    "warnings": 7278,
+    "estimatedBytes": 63142,
+    "modelRmsBefore": 218.02512935559736,
+    "modelRmsAfter": 170.25091988891688,
+    "seconds": 3,
+    "samples": [
+      {
+        "text": "のの",
+        "value": 0,
+        "safe": -161,
+        "warning": ""
+      },
+      {
+        "text": "ねね",
+        "value": 0,
+        "safe": -91,
+        "warning": ""
+      },
+      {
+        "text": "カカ",
+        "value": 0,
+        "safe": -253,
+        "warning": ""
+      },
+      {
+        "text": "ロロ",
+        "value": 0,
+        "safe": -266,
+        "warning": ""
+      },
+      {
+        "text": "カー",
+        "value": 0,
+        "safe": -237,
+        "warning": ""
+      },
+      {
+        "text": "「の",
+        "value": -35,
+        "safe": -345,
+        "warning": ""
+      },
+      {
+        "text": "の」",
+        "value": -31,
+        "safe": -349,
+        "warning": ""
+      },
+      {
+        "text": "。、",
+        "value": -100,
+        "safe": -702,
+        "warning": "limited"
+      }
+    ],
+    "optionZeroSaturated": {
+      "saturatedClasses": 7217,
+      "zeroGroups": {
+        "first": 6,
+        "second": 5
+      },
+      "estimatedBytes": 59298
+    },
+    "defaultNoAutoExceptions": {
+      "exceptions": 0,
+      "raisedClasses": 0,
+      "saturatedClasses": 0,
+      "zeroGroups": {
+        "first": 0,
+        "second": 0
+      },
+      "modelRmsAfter": 170.3,
+      "modelRmsWithExceptions": 170.3,
+      "estimatedBytes": 63142
+    }
+  },
+  {
+    "strength": 40,
+    "font": "Noto Sans JP / Regular 400 / renamed static subset",
+    "glyphs": 174,
+    "pairs": 30276,
+    "groups": {
+      "first": 162,
+      "second": 147
+    },
+    "classPairs": 12796,
+    "exceptions": 206,
+    "warnings": 7278,
+    "estimatedBytes": 52278,
+    "modelRmsBefore": 218.0251293555973,
+    "modelRmsAfter": 170.29640434315564,
+    "seconds": 3,
+    "samples": [
+      {
+        "text": "のの",
+        "value": 0,
+        "safe": -161,
+        "warning": ""
+      },
+      {
+        "text": "ねね",
+        "value": 0,
+        "safe": -91,
+        "warning": ""
+      },
+      {
+        "text": "カカ",
+        "value": 0,
+        "safe": -253,
+        "warning": ""
+      },
+      {
+        "text": "ロロ",
+        "value": 0,
+        "safe": -266,
+        "warning": ""
+      },
+      {
+        "text": "カー",
+        "value": 0,
+        "safe": -237,
+        "warning": ""
+      },
+      {
+        "text": "「の",
+        "value": -35,
+        "safe": -345,
+        "warning": ""
+      },
+      {
+        "text": "の」",
+        "value": -31,
+        "safe": -349,
+        "warning": ""
+      },
+      {
+        "text": "。、",
+        "value": -100,
+        "safe": -702,
+        "warning": "limited"
+      }
+    ],
+    "optionZeroSaturated": {
+      "saturatedClasses": 6266,
+      "zeroGroups": {
+        "first": 6,
+        "second": 5
+      },
+      "estimatedBytes": 47416
+    },
+    "defaultNoAutoExceptions": {
+      "exceptions": 0,
+      "raisedClasses": 0,
+      "saturatedClasses": 0,
+      "zeroGroups": {
+        "first": 0,
+        "second": 0
+      },
+      "modelRmsAfter": 170.3,
+      "modelRmsWithExceptions": 170.3,
+      "estimatedBytes": 50840
+    }
+  },
+  {
+    "strength": 70,
+    "font": "Noto Sans JP / Regular 400 / renamed static subset",
+    "glyphs": 174,
+    "pairs": 30276,
+    "groups": {
+      "first": 134,
+      "second": 123
+    },
+    "classPairs": 9478,
+    "exceptions": 2375,
+    "warnings": 7278,
+    "estimatedBytes": 46576,
+    "modelRmsBefore": 218.02512935559741,
+    "modelRmsAfter": 170.3676303300198,
+    "seconds": 3,
+    "samples": [
+      {
+        "text": "のの",
+        "value": 0,
+        "safe": -161,
+        "warning": ""
+      },
+      {
+        "text": "ねね",
+        "value": 0,
+        "safe": -91,
+        "warning": ""
+      },
+      {
+        "text": "カカ",
+        "value": 0,
+        "safe": -253,
+        "warning": ""
+      },
+      {
+        "text": "ロロ",
+        "value": 0,
+        "safe": -266,
+        "warning": ""
+      },
+      {
+        "text": "カー",
+        "value": 0,
+        "safe": -237,
+        "warning": ""
+      },
+      {
+        "text": "「の",
+        "value": -35,
+        "safe": -345,
+        "warning": ""
+      },
+      {
+        "text": "の」",
+        "value": -30,
+        "safe": -349,
+        "warning": ""
+      },
+      {
+        "text": "。、",
+        "value": -100,
+        "safe": -702,
+        "warning": "limited"
+      }
+    ],
+    "optionZeroSaturated": {
+      "saturatedClasses": 4666,
+      "zeroGroups": {
+        "first": 6,
+        "second": 5
+      },
+      "estimatedBytes": 33216
+    },
+    "defaultNoAutoExceptions": {
+      "exceptions": 0,
+      "raisedClasses": 0,
+      "saturatedClasses": 0,
+      "zeroGroups": {
+        "first": 0,
+        "second": 0
+      },
+      "modelRmsAfter": 170.8,
+      "modelRmsWithExceptions": 170.4,
+      "estimatedBytes": 36072
+    }
+  },
+  {
+    "strength": 100,
+    "font": "Noto Sans JP / Regular 400 / renamed static subset",
+    "glyphs": 174,
+    "pairs": 30276,
+    "groups": {
+      "first": 87,
+      "second": 83
+    },
+    "classPairs": 4545,
+    "exceptions": 6801,
+    "warnings": 7278,
+    "estimatedBytes": 45596,
+    "modelRmsBefore": 218.02512935559793,
+    "modelRmsAfter": 170.42617958426547,
+    "seconds": 3,
+    "samples": [
+      {
+        "text": "のの",
+        "value": 0,
+        "safe": -161,
+        "warning": ""
+      },
+      {
+        "text": "ねね",
+        "value": 0,
+        "safe": -91,
+        "warning": ""
+      },
+      {
+        "text": "カカ",
+        "value": 0,
+        "safe": -253,
+        "warning": ""
+      },
+      {
+        "text": "ロロ",
+        "value": 0,
+        "safe": -266,
+        "warning": ""
+      },
+      {
+        "text": "カー",
+        "value": 0,
+        "safe": -237,
+        "warning": ""
+      },
+      {
+        "text": "「の",
+        "value": -35,
+        "safe": -345,
+        "warning": ""
+      },
+      {
+        "text": "の」",
+        "value": -31,
+        "safe": -349,
+        "warning": ""
+      },
+      {
+        "text": "。、",
+        "value": -100,
+        "safe": -702,
+        "warning": "limited"
+      }
+    ],
+    "optionZeroSaturated": {
+      "saturatedClasses": 1968,
+      "zeroGroups": {
+        "first": 5,
+        "second": 4
+      },
+      "estimatedBytes": 15794
+    },
+    "defaultNoAutoExceptions": {
+      "exceptions": 0,
+      "raisedClasses": 0,
+      "saturatedClasses": 0,
+      "zeroGroups": {
+        "first": 0,
+        "second": 0
+      },
+      "modelRmsAfter": 172.6,
+      "modelRmsWithExceptions": 170.4,
+      "estimatedBytes": 17376
+    }
+  }
+]

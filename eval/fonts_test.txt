@@ -1,0 +1,10 @@
+/tmp/gf/ofl/barlow/Barlow-Regular.ttf
+/tmp/gf/ofl/dmsans/DMSans[opsz,wght].ttf
+/tmp/gf/ofl/karla/Karla[wght].ttf
+/tmp/gf/ofl/manrope/Manrope[wght].ttf
+/tmp/gf/ofl/notosans/NotoSans[wdth,wght].ttf
+/tmp/gf/ofl/nunito/Nunito[wght].ttf
+/tmp/gf/ofl/poppins/Poppins-Regular.ttf
+/tmp/gf/ofl/publicsans/PublicSans[wght].ttf
+/tmp/gf/ofl/raleway/Raleway[wght].ttf
+/tmp/gf/ofl/rubik/Rubik[wght].ttf

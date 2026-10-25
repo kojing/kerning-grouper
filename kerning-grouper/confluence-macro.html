@@ -1,0 +1,16 @@
+<!-- Confluenceの「HTMLマクロ」本文に貼り付けてください。コードブロックではありません。 -->
+<div data-kerning-grouper></div>
+<script>
+(function () {
+  var root = document.currentScript.previousElementSibling;
+  // ここを、社内で配信するメインJSのURLに変更してください。
+  // 添付ファイルURLを使う場合は、JavaScriptとしての配信・CSP許可を確認してください。
+  var MAIN_JS_URL = '/REPLACE-WITH-YOUR-PATH/kerning-grouper.js';
+  if (window.KerningGrouper) { window.KerningGrouper.mount(root); return; }
+  var script = document.createElement('script');
+  script.src = MAIN_JS_URL;
+  script.onload = function () { window.KerningGrouper.mount(root); };
+  script.onerror = function () { root.textContent = 'メインJSを読み込めません。URL・閲覧権限・CSPを確認してください。'; };
+  document.head.appendChild(script);
+})();
+</script>

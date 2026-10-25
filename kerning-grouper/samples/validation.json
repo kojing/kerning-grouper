@@ -1,0 +1,66 @@
+{
+  "font": "Noto Sans JP / Regular 400 / renamed static subset",
+  "glyphs": 174,
+  "pairs": 30276,
+  "groups": {
+    "first": 174,
+    "second": 172
+  },
+  "classPairs": 15020,
+  "exceptions": 0,
+  "warnings": 7278,
+  "estimatedBytes": 63142,
+  "modelRmsBefore": 218.02512935559736,
+  "modelRmsAfter": 170.25091988891688,
+  "seconds": 3,
+  "samples": [
+    {
+      "text": "のの",
+      "value": 0,
+      "safe": -161,
+      "warning": ""
+    },
+    {
+      "text": "ねね",
+      "value": 0,
+      "safe": -91,
+      "warning": ""
+    },
+    {
+      "text": "カカ",
+      "value": 0,
+      "safe": -253,
+      "warning": ""
+    },
+    {
+      "text": "ロロ",
+      "value": 0,
+      "safe": -266,
+      "warning": ""
+    },
+    {
+      "text": "カー",
+      "value": 0,
+      "safe": -237,
+      "warning": ""
+    },
+    {
+      "text": "「の",
+      "value": -35,
+      "safe": -345,
+      "warning": ""
+    },
+    {
+      "text": "の」",
+      "value": -31,
+      "safe": -349,
+      "warning": ""
+    },
+    {
+      "text": "。、",
+      "value": -100,
+      "safe": -702,
+      "warning": "limited"
+    }
+  ]
+}
