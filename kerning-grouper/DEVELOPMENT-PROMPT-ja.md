@@ -22,31 +22,27 @@
 - 静的OTF/TTFの読み込み、輪郭解析、左右独立のグループ分類。
 - 光学・機械判定を混合したペア値の生成、クラス共通値、個別例外、手動指定。
 - 本アプリ専用の作業JSON保存・復元。
-- 本アプリ専用のカーニングJSON、ペアCSVの保存。
+- FontLab 用 VFM（v0.5.3、src/vfm.js）、ペアCSVの保存。
 
 ### まだできないこと
-- FontLab互換VFMの読み込み・書き出し。
+- （v0.5.3 で VFM 書き出しを実装。下記 3 を参照）
 - AFMの読み込み・書き換え。
 - OTFのGPOSを書き換えた実フォントの出力。
 - 実出力バイナリによる64KiB・16bitオフセット・Extension非使用の検証。
 
 独自JSONに.vfmという拡張子を付けて対応済みとしない。
 
-## 3. VFM対応の保留事項
+## 3. VFM対応（v0.5.3 で書き出しを実装）
 
-公式資料では、VFMがJSON形式であり、複数マスターのメトリクス・クラスカーニング・小数値等を扱うことを確認した。しかし、正確なフィールド構造を確認できる仕様・実例はまだ入手できていない。VFJをVFMと同一視しない。
+ユーザーから FontLab 8 が書き出した実 VFM（FOT-MatisseProN-M.vfm）と同じ書体の OTF（M・B）を受け取り、構造を確認した（README の「v0.5.3」に構造を記載）。このファイルは CID フォントのもので、カーニングはグリフ単位のペアに展開されており、クラスの書き方は確認できていない。
 
-ユーザーへ「FontLab 8から書き出した、クラスカーニングと個別例外を含むVFMを1点添付してほしい」と依頼済み。未提供。
+実装（src/vfm.js、src/fontlab-names.js、test-vfm.mjs）：
+1. 書き出しはグリフ単位のペア（クラス展開）。値はフォント単位の整数を文字列で。0は書かない。キーは辞書順、インデント4。
+2. グリフ名：フォント自身の名前（名前付き CFF・post 2）、なければ最小コードポイントから FontLab の名前（fontlab-names.js、AGLFN を実ファイルに合わせて補正：twosuperior・threesuperior・onesuperior・f_f・fi・fl・f_f_i・f_f_l を追加、µ・ϑ・ϕ・Ω(2126)・ℵ・⊥・罫線・□▪▫● は uniXXXX）。
+3. 読み込み先 VFM（任意）：マスター名・グリフ名を検証し、無い名前は送り幅＋外接矩形の一致で対応付け、そのファイルの当該マスターの pairs だけを差し替える（metrics・他マスター・未知フィールドは保持）。
+4. マスター名の既定は name ID 17 → 2 → Regular。
 
-VFM入手後は以下を実装する方針：
-1. 元VFMをテンプレートとして読み込む。
-2. マスター・メトリクス・未知のフィールドを保持する。
-3. 対象マスターとグリフ名の対応を検証する。
-4. 本ツールのグループ・共通値・個別例外を反映する。
-5. 1000-UPM正規化値を元フォントのUPMへ換算する。小数処理は実形式に合わせる。
-6. 値0の例外も必要なら保持する。値は追加差分ではなく置換値として扱う。
-7. FontLab 8で読み戻せるか確認し、未検証部分を明示する。
-
+未確認：VFM でのクラスカーニングの書き方、FontLab の読み込み時の置き換え／追加の選択肢、実際に FontLab へ読み戻せるか（この環境では FontLab を動かせない）。クラス付きの VFM の実例が入手できたら、クラスのまま書き出す方式を検討する。
 参考： https://help.fontlab.com/fontlab/7/manual/Release-Notes-7435/
 
 ## 4. 対象グリフ
@@ -164,7 +160,7 @@ Google FontsのNoto Sans JPを開発時にwght=400で静的化・文字限定し
 - 選択の詳細（タブ内）：セル選択＝クラス内全ペア（最大24×24、クリックでペア選択）＋カーニング調整（クラス値・個別値・前後比較）。見出し選択＝グループの重ね表示・メンバー・指標・分離・固定、統合対象は checkedGroups のみ（active は含めない。Ctrl/⌘/Shift の見出し選択はチェックのトグルで、初回のみ active もチェック）。統合後チェックは解除。「グループを作成」は判定条件の下、中止ボタンは削除（内部の cancel は自動再分類用に残す）。タブ側の選択変更は表に追従。
 - 対象グリフ＝チェック ∪ 追加文字 ∪ 個別追加 − 個別除外。0.3秒で反映し自動再分類。作業JSONに selection を保存。
 - 領域ごとの組み合わせ（ユーザー指定、和欧チェックを置換）：領域＝グリフが当てはまるチェック済みUnicode規則の最初のもの。app.js pairPlan() が region・deny（'先頭>後ろ'）・separation（各グリフの相手シグネチャ）を作り、result.params.pairs / separation として分類・生成に渡す。cluster は separation が異なるグリフを統合しない（スコア無限大）、generateKerning は pairFilter で deny を評価しない。既定は unicode-rules.js defaultAllowed（同じ group 同士）。作業JSONは regionAllow（既定からの変更）。旧 mixScripts は互換で残す（false=既定、true/なし=全組み合わせ）。グループ内の個別例外の自動作成もオフ（生成バーのチェック、kernDefaults.exceptions。オフ時はresolveKerningでクラス値をメンバーの接触下限の最大値まで引き上げ、raisedClassesを返す。光学例外・評価不能例外を作らない。手動ペア・数字保護・手動クラス値による接触は例外として残る）。比較表はREADMEとsamples/grouping-comparison.json（defaultNoAutoExceptions）。
-- 全ペア0のグループ（最終値基準）は resolveKerning が zeroGroups として返し、estimate(glyphs,groups,zero) でCoverage・ClassDef・行列から除外して概算。表は行・列ごと無効表示（grid.js offReason：和欧0固定＝cross、全ペア0＝zero）、見出しは「除外」、カーニングJSONに excludedGroups。0でない例外が残るグループは除外しない。サンプルでは発生0件。
+- 全ペア0のグループ（最終値基準）は resolveKerning が zeroGroups として返し、estimate(glyphs,groups,zero) でCoverage・ClassDef・行列から除外して概算。表は行・列ごと無効表示（grid.js offReason：和欧0固定＝cross、全ペア0＝zero）、見出しは「除外」、VFM は0のペアを書かない（旧カーニングJSONの excludedGroups は廃止）。0でない例外が残るグループは除外しない。サンプルでは発生0件。
 - 表の「値のヒートマップ」切替は廃止し、色分けも「カーニングの表示のみ」で消える（ユーザー指定）。28px未満のセルは字形なしの色だけ。画面から「units」表記を削除し、各スライダーに項目の説明を表示（ユーザー指定）。値は1000 UPM換算と生成の設定欄に一度だけ明記。
 - 表示の切替（ユーザー指定）：プレビュー（data-konly）と表（data-gonly）に「カーニングの表示のみ」。オンで補正前の輪郭・ずれのバー・数値を消す。生成値の適用そのものは切り替えない。
 - 補正前後の重ね表示：プレビュー・選択ペア（kerning-ui drawSequence）と表のセル・クラス内全ペア（grid drawGlyphs overlay）。輪郭＝補正前、塗り＝補正後、バー＝ずれ。セルの拡大率・位置は補正前の並びで固定。プレビューは直前ペアのみ戻した位置と比較し、行長の変化を表示（ぼかし・累積比較はユーザー指定で削除）。

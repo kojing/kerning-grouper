@@ -10,7 +10,8 @@
     "test:japanese": "node test-japanese.mjs",
     "test:grouping": "node test-grouping-strength.mjs",
     "test:mixscript": "node test-mixscript.mjs",
-    "test:tsume": "node test-tsume.mjs"
+    "test:tsume": "node test-tsume.mjs",
+    "test:vfm": "node test-vfm.mjs"
   },
   "keywords": [],
   "author": "",

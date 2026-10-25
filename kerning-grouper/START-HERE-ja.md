@@ -6,4 +6,4 @@
 - Confluenceで使う：`kerning-grouper.js` を社内で配信し、`confluence-macro.html` の `MAIN_JS_URL` をそのURLに変更してHTMLマクロへ貼り付けます。
 - 開発する：`npm ci` と `npm run build`。詳しくは `README.md`。
 
-VFM書き出し・OTF/AFM書き換えは未実装です。容量はモデル概算です。
+FontLab 用 VFM（グリフ単位のペア）を書き出せます（v0.5.3）。OTF/AFM の書き換えは未実装です。容量はモデル概算です。
