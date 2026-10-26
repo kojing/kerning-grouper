@@ -255,3 +255,5 @@ UI検証：test-ui.mjs / test-kerning-ui.mjs。Playwrightと実行可能なChrom
 - 「最新のグループか」の判定は .app の data-state（ready／stale）。テストもこれを待つ。
 - kerning-ui.js：serialize／restore を削除、getSettings／setSettings（null で初期値）を追加。手で入れた値は保存しない（VFM に書き出す前提）。
 - これより前の節の「作業JSON」「旧作業JSONの復元」は v0.5.5 までの履歴。
+
+- （追記）conventions.js の separationTag(ch, side)：欧文の大小（|U／|L）と SOLO の字（|solo-x、baseOf で決めるのでアクセント付きも同じ）。engine は params.convention のとき、既存の separation（なければ mixScripts=false の文字体系）にこのタグを足した separation を conventionGroups と cluster の両方に渡す。

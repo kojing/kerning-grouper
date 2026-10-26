@@ -36,4 +36,11 @@ assert.ok(same(on,'left','か','が'),'が follows か on the left');assert.ok(!
 assert.ok(on.convention.right.removed.some(x=>x.reason==='dakuten'));
 assert.ok(on.groups.left.length<off.groups.left.length&&on.groups.right.length<=off.groups.right.length,'fewer groups by convention');
 assert.equal(off.convention,null);
+{// strength 40 smooths the outlines: f's crossbar must still keep it out of the straight-stem group, and cases never mix
+ const {separationTag}=await import('./src/conventions.js');assert.equal(separationTag('f','left'),'|L|solo-f');assert.equal(separationTag('R','left'),'|U');assert.equal(separationTag('Ŕ','left'),'|U');assert.equal(separationTag('か','left'),'');
+ const lat=glyphs.filter(g=>/^[A-Za-z]$/.test(String.fromCodePoint(g.unicodes[0])));
+ const s40=await createEngine()({glyphs:lat,upm:font.unitsPerEm,fontKey:'s40',params:{...defaults,convention:true,strength:40},fixed:{left:[],right:[]}},()=>{},()=>false);
+ const chr=i=>String.fromCodePoint(font.glyphs.get(i).unicodes[0]);
+ assert.deepEqual(s40.groups.left.find(g=>g.includes(id('f'))).map(chr),['f'],'f stays alone on the left');
+ for(const sd of ['left','right'])for(const g of s40.groups[sd]){const cs=g.map(chr);assert.ok(!(cs.some(c=>/[A-Z]/.test(c))&&cs.some(c=>/[a-z]/.test(c))),'capitals and small letters never mix: '+cs.join(''));}}
 console.log('Convention tests passed',JSON.stringify({off:[off.groups.right.length,off.groups.left.length],on:[on.groups.right.length,on.groups.left.length],convGroups:[on.convention.right.groups.length,on.convention.left.groups.length]}));
