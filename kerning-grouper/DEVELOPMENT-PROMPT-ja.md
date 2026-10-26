@@ -247,3 +247,11 @@ UI検証：test-ui.mjs / test-kerning-ui.mjs。Playwrightと実行可能なChrom
 - app.js：useConvention（既定 true）、run() の usedParams.convention、convStat（2 作成）、グループ一覧の「お作法」バッジ、詳細の警告の扱い、作業 JSON の convention（旧ファイルは false）。グリフ名は vfm.js の glyphNamer（FontLab の名前）。
 - 評価スクリプト：eval/study_groups.py（方式の比較）、eval/eval_conv.py（エンジンで on/off）、eval/eval_kana.py、eval/conv2.py、eval/why_big.py。正解はプロのカーニングで行・列の値が同じ字。
 - 未対応：Python（kg-trainer）のグループ評価は形のみ。
+
+
+## v0.5.6 設定は localStorage、作業JSONは廃止（実装済み）
+
+- app.js：作業JSONの保存（data-save）と復元（data-restore）を削除。ツールバーに data-resetsettings。SETTINGS_KEY（options.storageKey、既定 `kerning-grouper:settings:v1`）に {version:1, params（labels のキー＋step）, convention, rules, exclude, regionAllow, budget, kerning} を保存。shadow root の input／change と schedule() で 300ms 遅延保存、mount 時に applyStored（範囲外の値は捨てる）。localStorage は try/catch で、使えなければ保存しない。
+- 「最新のグループか」の判定は .app の data-state（ready／stale）。テストもこれを待つ。
+- kerning-ui.js：serialize／restore を削除、getSettings／setSettings（null で初期値）を追加。手で入れた値は保存しない（VFM に書き出す前提）。
+- これより前の節の「作業JSON」「旧作業JSONの復元」は v0.5.5 までの履歴。
