@@ -17,3 +17,4 @@ fonts_latin.txt のパスは /tmp/gf/ofl/... を前提にしているので、�
 - survey.py：各フォントのカーニング数（欧文・かな）の一覧
 - fonts_test.txt / test_unseen.py：学習に使っていない9書体で、値の補正あり・なしを比べる（`run_js.mjs` を `{}` と `{"kern":{"learned":false}}` で実行して t/on, t/off に置く）
 - build_dataset.py / models_both.py / ablate.py：値の補正の方法比較と特徴量の絞り込み
+- グループの方式の比較（v0.5.5）：study_groups.py（形／お作法の各方式）、eval_conv.py（Web 版のエンジンでお作法オン・オフ）、eval_kana.py、conv2.py、why_big.py、convention.py、kana_conv.py。shape_groups.mjs は kerning-grouper/ に `.shape_groups.mjs` として置いて使う（エンジンでグループを作って JSON に書く）。fonts_classes.txt はクラスを使う20書体。

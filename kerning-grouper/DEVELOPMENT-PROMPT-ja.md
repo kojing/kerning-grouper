@@ -237,3 +237,13 @@ UI検証：test-ui.mjs / test-kerning-ui.mjs。Playwrightと実行可能なChrom
 - kerning-ui.js：vfmKern（changed／all）、keptValues()、書き出しは読み込んだ VFM を参照にして同じファイル名で保存、targets 以外を含む元のペアは保持（buildVfm の targets）。
 - テスト：test-vfm.mjs（読み込み・推定・クラス・kept・absorb）、test-kerning-ui.mjs（書き出した VFM を読み込み→引き継ぎ→書き換え保存）。
 - 作業JSON には VFM の状態を保存しない（復元後は VFM を読み込み直す）。
+
+
+## v0.5.5 お作法でまとめるグループ作成（実装済み）
+
+- src/conventions.js：baseOf（NFD＋左右別の表 SIDE）、protrudes（horn／caron ď ľ ť Ľ／dakuten、いずれも right 側）、CLASSIC（欧文の定番の組）、conventionKey、conventionGroups(items, side, params, {taken, sep})。輪郭の確認は、派生した字＝元の字にインクがある行だけで比較（かなは差 100 超の行を15%まで除外し、許容×6）、許容×2。元の字どうし＝リードと許容×6。外れた字は removed（reason: shape／horn／caron／dakuten）。
+- engine.js：params.convention のとき、各側で conventionGroups を作り、ユーザー／VFM の固定グループの後ろに「取り込み可の固定グループ」として cluster に渡す。結果に convention（groups, removed）。
+- core.js cluster：fixedAbsorb（固定グループごとの取り込み可否）。取り込み可の固定グループは、未固定の字を complete link で取り込めるが、固定グループどうしは合わない。params.absorbFixed===true は全固定グループ（VFM の singles モード）。
+- app.js：useConvention（既定 true）、run() の usedParams.convention、convStat（2 作成）、グループ一覧の「お作法」バッジ、詳細の警告の扱い、作業 JSON の convention（旧ファイルは false）。グリフ名は vfm.js の glyphNamer（FontLab の名前）。
+- 評価スクリプト：eval/study_groups.py（方式の比較）、eval/eval_conv.py（エンジンで on/off）、eval/eval_kana.py、eval/conv2.py、eval/why_big.py。正解はプロのカーニングで行・列の値が同じ字。
+- 未対応：Python（kg-trainer）のグループ評価は形のみ。
