@@ -18,8 +18,10 @@ export const unicodeRules=[
  {id:'kata',short:'カタカナ',group:'和文',label:'カタカナ（長音・中黒を含む）',rule:'Script=Katakana ＋ U+30A0–30FF・31F0–31FF・半角 FF66–FF9F',test:u=>katakana(u)||inRange(u,0x30A0,0x30FF)||inRange(u,0x31F0,0x31FF)||inRange(u,0xFF66,0xFF9F)},
  {id:'jpunct',short:'和文約物',group:'和文',label:'和文の約物',rule:'U+3000–303F ＋ 全角・半角形の P / S',test:u=>inRange(u,0x3000,0x303F)||(inRange(u,0xFF00,0xFFEF)&&(P(u)||S(u)))},
  {id:'fullwidth',short:'全角英数',group:'和文',label:'全角英数',rule:'U+FF10–FF19・FF21–FF3A・FF41–FF5A',test:u=>inRange(u,0xFF10,0xFF19)||inRange(u,0xFF21,0xFF3A)||inRange(u,0xFF41,0xFF5A)},
- {id:'han',short:'漢字',group:'和文',label:'漢字',rule:'Script=Han',test:u=>han(u)&&!inRange(u,0x3000,0x303F)},
+ {id:'han',short:'漢字',group:'和文',label:'漢字',rule:'Script=Han',test:u=>han(u)&&!inRange(u,0x3000,0x303F),never:true},
 ];
+// Kanji are never grouped or kerned (full-width boxes by design): the rule only names them.
+export const isKanji=u=>han(u)&&!inRange(u,0x3000,0x303F);
 export const japanesePreset=['hira','kata','jpunct'];
 // Returns the ids of rules a glyph matches (by any of its code points).
 export function rulesOf(unicodes){const out=[];for(const r of unicodeRules)if((unicodes||[]).some(u=>r.test(u)))out.push(r.id);return out;}

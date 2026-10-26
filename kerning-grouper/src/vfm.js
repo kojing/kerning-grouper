@@ -32,13 +32,20 @@ export function glyphNamer(font,reference=null,master=null){const own=hasOwnName
 // file is that VFM with this master's kerning replaced (metrics and other masters kept as they are).
 // targets: glyph ids the tool worked on. With a reference, its pairs that involve any other glyph (glyphs the tool
 // cannot target, e.g. alternates without a code point) are kept as they are; only pairs among targets are replaced.
-export function buildVfm({pairs,upm,name,master,reference=null,targets=null}){const out={};let count=0,keptOutside=0;
+export function buildVfm({pairs,upm,name,master,reference=null,targets=null,sidebearings=null,font=null}){const out={};let count=0,keptOutside=0,metricsChanged=0;
  if(reference&&targets){const T=new Set([...targets].map(name)),old=reference.data.masters?.[master]?.pairs||{};for(const [a,row]of Object.entries(old))for(const [b,val]of Object.entries(row||{})){if(T.has(a)&&T.has(b))continue;(out[a]||(out[a]={}))[b]=String(val);keptOutside++;}}
  for(const p of pairs){const fu=Math.round(p.value*upm/1000);if(!fu)continue;const a=name(p.a),b=name(p.b);(out[a]||(out[a]={}))[b]=String(fu);count++;}
  const sorted={};for(const a of Object.keys(out).sort(byCode)){const row={};for(const b of Object.keys(out[a]).sort(byCode))row[b]=out[a][b];sorted[a]=row;}
  let v;if(reference){v=JSON.parse(JSON.stringify(reference.data));v.masters[master]={...(v.masters[master]||{}),pairs:sorted};}
  else v={dataType:'com.fontlab.metrics',masters:{[master]:{pairs:sorted}},upm};
- return{text:JSON.stringify(v,null,4)+'\n',count,keptOutside,firsts:Object.keys(sorted).length};}
+ // side bearings (font units): lsb moves the outline right inside a wider box, rsb widens the box on the right.
+ // Without a reference only the changed glyphs get a metrics entry, measured from the font.
+ if(sidebearings&&sidebearings.size){const m=v.metrics||(v.metrics={});
+  for(const [id,d]of sidebearings){if(!d.lsb&&!d.rsb)continue;const nm=name(id);let L=m[nm]?.layers?.[master];
+   if(!L){if(!font)continue;const g=font.glyphs.get(id),b=g.getBoundingBox(),r=Math.round;L={lsb:r(b.x1),rsb:r(g.advanceWidth-b.x2),width:g.advanceWidth,xmax:r(b.x2),xmin:r(b.x1),ymax:r(b.y2),ymin:r(b.y1)};(m[nm]||(m[nm]={layers:{}})).layers||(m[nm].layers={});m[nm].layers[master]=L;}
+   const n={...L};if(n.lsb!==undefined)n.lsb+=d.lsb;if(n.rsb!==undefined)n.rsb+=d.rsb;n.width=(n.width||0)+d.lsb+d.rsb;if(n.xmin!==undefined)n.xmin+=d.lsb;if(n.xmax!==undefined)n.xmax+=d.lsb;m[nm].layers[master]=n;metricsChanged++;}
+  if(!reference){const sortedM={};for(const k of Object.keys(m).sort(byCode))sortedM[k]=m[k];const {dataType,masters}=v;v={dataType,masters,metrics:sortedM,upm};}}
+ return{text:JSON.stringify(v,null,4)+'\n',count,keptOutside,metricsChanged,firsts:Object.keys(sorted).length};}
 const byCode=(x,y)=>x<y?-1:x>y?1:0;
 
 // ---- reading kerning and groups back from a .vfm ----

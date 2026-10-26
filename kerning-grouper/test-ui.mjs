@@ -21,7 +21,7 @@ await page.waitForFunction(()=>document.querySelector('[data-kerning-grouper]').
 const count=async()=>+(await page.locator('[data-count]').textContent()).match(/選択 (\d+)/)[1];
 const settle=()=>page.waitForTimeout(450);
 assert.equal(await count(),62,'default checks = A-Z a-z 0-9');
-assert.equal(await page.locator('[data-rulecount=upper]').textContent(),' 26','rule shows how many glyphs the font has');assert.equal(await page.locator('[data-rulecount=hira]').textContent(),' 80');
+assert.equal(await page.locator('[data-rulecount=upper]').textContent(),' 26','rule shows how many glyphs the font has');assert.equal(await page.locator('[data-category=han]').count(),0,'kanji cannot be chosen');assert.match(await page.locator('[data-kanjinote]').textContent(),/漢字/);assert.equal(await page.locator('[data-rulecount=hira]').textContent(),' 80');
 await page.locator('[data-selecttext]').fill('AB A \n!');await settle();
 assert.equal(await count(),60,'excluded characters leave the checked ranges; duplicates and whitespace ignored');
 assert.match(await page.locator('[data-breakdown]').textContent(),/規則に該当 62 − 除外 2/);assert.match(await page.locator('[data-textinfo]').textContent(),/1文字はチェックした範囲に含まれないため影響なし/);
