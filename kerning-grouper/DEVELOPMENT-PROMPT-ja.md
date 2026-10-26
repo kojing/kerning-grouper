@@ -226,3 +226,14 @@ UI検証：test-ui.mjs / test-kerning-ui.mjs。Playwrightと実行可能なChrom
 - generateKerning の引数 `metrics`（{cap, xh}）は kerning-ui が font 全体の H・x を flatten して渡す（fontMetrics）。なければ items 内の H・x、それもなければ 700/500。
 - 一致の確認：kg-trainer/tests/test_parity.py（同梱フォント、`KG_PARITY_FONT` で実フォントも）。Lato・Inter・M PLUS 1p・Open Sans で一致を確認済み。
 - 旧作業JSONは learned=false で復元。
+
+
+## v0.5.4 VFM の読み込み（実装済み）
+
+- src/vfm.js：`readVfm(ref, master, font)` → pairs（Map "a:b"→1000UPM）、groups（right=前・left=後ろ）、source（classes／inferred）、ids、unmapped。`nameIndex` は FontLab 名→gid（なければ VFM の width＋bbox）。クラス定義は未確認形式のため複数の形を受ける（"@名前" 参照があるときは @ 付きだけをクラスとみなす）。定義がなければ、非ゼロの値の並び（行・列）が同じグリフを同じグループに推定。
+- core.js cluster：`params.absorbFixed` で、固定グループどうしは合わず、未固定の字を complete link（全構成員と閾値内）で取り込める。
+- app.js：vfm 状態、vfmGroupMode（singles／all／keep）→ runFixed()（ユーザーの固定を優先）、vfmUnchanged()（VFM の構成員がちょうど1つの VFM グループに一致するグループ＝引き継ぎ、ほかの構成員は VFM に無い字）。kerningUI の context に vfm（pairs, unchanged, members, ref, master, file）。
+- kerning.js resolveKerning の第5引数 kept={classes,pairs}：閾値・接触回避なしでそのまま採用（reason 'vfm'）。manual が優先。
+- kerning-ui.js：vfmKern（changed／all）、keptValues()、書き出しは読み込んだ VFM を参照にして同じファイル名で保存、targets 以外を含む元のペアは保持（buildVfm の targets）。
+- テスト：test-vfm.mjs（読み込み・推定・クラス・kept・absorb）、test-kerning-ui.mjs（書き出した VFM を読み込み→引き継ぎ→書き換え保存）。
+- 作業JSON には VFM の状態を保存しない（復元後は VFM を読み込み直す）。

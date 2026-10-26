@@ -42,3 +42,24 @@ const ro=JSON.parse(buildVfm({pairs:[{a:1,b:2,value:-40}],upm:1000,name:rn.name,
 assert.deepEqual(ro.masters.Bold,{pairs:{space:{renamed:'-40'}},extra:1});assert.deepEqual(ro.masters.Light.pairs,{X:{Y:'-9'}});assert.ok(ro.metrics.renamed);
 assert.throws(()=>parseVfm('{"dataType":"x"}'));assert.throws(()=>parseVfm('nope'));
 console.log('VFM tests passed',JSON.stringify({ownNames:own,master,pairs:out.count}));
+
+// ---- reading a .vfm back: pairs, inferred groups, explicit classes (accepted shapes), kept values, fixed absorb ----
+{const {readVfm,groupKey}=await import('./src/vfm.js');const {resolveKerning}=await import('./src/kerning.js');const {cluster}=await import('./src/core.js');
+ // flattened pairs: A/À kern identically → one first-side group; O/Ó identically as seconds
+ const mk=(names)=>({tables:{cff:{topDict:{}}},glyphs:{length:names.length,get:i=>({name:names[i],unicodes:[],advanceWidth:500,getBoundingBox:()=>({x1:0,x2:400,y1:0,y2:700})})}});
+ const f=mk(['A','Agrave','O','Oacute','V','T']);
+ const flat=parseVfm(JSON.stringify({dataType:'com.fontlab.metrics',masters:{M:{pairs:{A:{O:'-20',Oacute:'-20',V:'-60'},Agrave:{O:'-20',Oacute:'-20',V:'-60'},T:{O:'-50',Oacute:'-50'},missing:{O:'-5'}}}},upm:1000}));
+ const r=readVfm(flat,'M',f);assert.equal(r.source,'inferred');assert.equal(r.pairs.get('0:2'),-20);assert.equal(r.pairs.size,8);assert.deepEqual(r.unmapped,['missing']);
+ assert.ok(r.groups.right.some(g=>groupKey(g)==='0,1'),'A and Agrave share a first-side group');assert.ok(r.groups.left.some(g=>groupKey(g)==='2,3'),'O and Oacute share a second-side group');
+ // explicit classes (one of the accepted shapes): class pair + glyph exception
+ const cls=parseVfm(JSON.stringify({dataType:'com.fontlab.metrics',masters:{M:{pairs:{'@A':{'@O':'-30'},A:{O:'-10'}},kerningClasses:[{name:'A',names:['A','Agrave'],'1st':true},{name:'O',names:['O','Oacute'],'2nd':true}]}},upm:2000}));
+ const rc=readVfm(cls,'M',f);assert.equal(rc.source,'classes');assert.equal(rc.pairs.get('1:3'),-15,'class value, converted to 1000 UPM');assert.equal(rc.pairs.get('0:2'),-5,'glyph exception wins');assert.deepEqual(rc.groups.right,[[0,1]]);assert.deepEqual(rc.groups.left,[[2,3]]);
+ // kept values: no threshold, no collision raise; manual still wins
+ const raw2={pairs:[{a:0,b:2,c1:0,c2:0,ideal:-80,safe:-5,protected:false,confidence:true,opticalBefore:[null],opticalTarget:[null]},{a:1,b:2,c1:0,c2:0,ideal:-80,safe:-5,protected:false,confidence:true,opticalBefore:[null],opticalTarget:[null]}]};
+ const kr=resolveKerning(raw2,kernDefaults,{},{},{classes:{'0:0':-3},pairs:{'1:2':-40}});assert.equal(kr.map['0:2'],-3);assert.equal(kr.map['1:2'],-40);assert.equal(kr.pairs[1].reason,'vfm');
+ const km=resolveKerning(raw2,kernDefaults,{},{'0:2':-2},{classes:{'0:0':-3},pairs:{}});assert.equal(km.map['0:2'],-2,'manual wins over kept');
+ // fixed groups absorb unfixed look-alikes but never merge with each other
+ const prof=[1,1,1].map(()=>({right:[10,10,10],left:[10,10,10]}));const items=[0,1,2,3].map(id=>({id,unicodes:[65],profile:{right:[10,10,10,10],left:[10,10,10,10]}}));
+ const p0={...defaults,step:6};const plain=await cluster(items,'right',p0,{fixed:[[0],[1]]});assert.equal(plain.length,3,'without absorb: two locked groups + the rest');
+ const abs=await cluster(items,'right',{...p0,absorbFixed:true},{fixed:[[0],[1]]});assert.equal(abs.length,2,'with absorb the identical glyphs join a fixed group');assert.ok(abs.every(g=>!(g.includes(0)&&g.includes(1))),'fixed groups stay apart');}
+console.log('VFM read tests passed');

@@ -41,12 +41,16 @@ export async function cluster(items,side,params,{signal=()=>false,progress=()=>{
   const parent=Array.from({length:n},(_,i)=>i),groups=new Map(sorted.map((g,i)=>[i,[i]])),locked=new Set();
   const root=i=>{while(parent[i]!==i){parent[i]=parent[parent[i]];i=parent[i];}return i;};
   for(const f of fixed){const ids=f.filter(id=>index.has(id)).map(id=>index.get(id));if(!ids.length)continue;const first=ids[0];for(const id of ids){parent[id]=first;if(id!==first)groups.delete(id);}groups.set(first,ids);locked.add(first);}
+  // params.absorbFixed: fixed groups stay apart from each other but may take in unfixed glyphs (complete link:
+  // every member within the thresholds). Used when only singletons/ungrouped glyphs are rebuilt.
+  const absorb=!!params.absorbFixed;if(absorb)for(const r of locked){const mem=groups.get(r);for(let c=0;c<n;c++){if(mem.includes(c))continue;let d=0;for(const m of mem)d=Math.max(d,matrix[m][c]);matrix[r][c]=matrix[c][r]=d;}}
   let counter=0;
   // Agglomerate using an exact complete-link matrix and a lazy min heap.
   const heap=[];function push(v){heap.push(v);let k=heap.length-1;while(k){let q=(k-1)>>1;if(cmp(heap[q],v)<=0)break;heap[k]=heap[q];k=q;}heap[k]=v;}function cmp(a,b){return a[0]-b[0]||a[1]-b[1]||a[2]-b[2];}function pop(){const first=heap[0],v=heap.pop();if(heap.length){let k=0;while(2*k+1<heap.length){let c=2*k+1;if(c+1<heap.length&&cmp(heap[c+1],heap[c])<0)c++;if(cmp(v,heap[c])<=0)break;heap[k]=heap[c];k=c;}heap[k]=v;}return first;}
   const version=new Uint32Array(n);
+  if(absorb){for(let i=0;i<n;i++)for(let j=i+1;j<n;j++){if(!groups.has(i)||!groups.has(j)||(locked.has(i)&&locked.has(j)))continue;if(!locked.has(i)&&!locked.has(j))continue;if(matrix[i][j]<=1)push([matrix[i][j],i,j,0,0]);}}
   for(const [s,i,j]of edges)if(!locked.has(i)&&!locked.has(j)&&groups.has(i)&&groups.has(j))push([s,i,j,0,0]);
-  while(heap.length){const [s,a,b,va,vb]=pop();if(!groups.has(a)||!groups.has(b)||version[a]!==va||version[b]!==vb)continue;groups.get(a).push(...groups.get(b));groups.delete(b);version[a]++;for(const c of groups.keys()){if(c===a||locked.has(c))continue;const d=Math.max(matrix[a][c],matrix[b][c]);matrix[a][c]=matrix[c][a]=d;if(d<=1)push([d,Math.min(a,c),Math.max(a,c),version[Math.min(a,c)],version[Math.max(a,c)]]);}if(++counter%25===0){if(signal())throw Error('中止');progress(.65+.35*(1-groups.size/Math.max(n,1)));await tick();}}
+  while(heap.length){const [s,a,b,va,vb]=pop();if(!groups.has(a)||!groups.has(b)||version[a]!==va||version[b]!==vb)continue;groups.get(a).push(...groups.get(b));groups.delete(b);if(locked.has(b)){locked.delete(b);locked.add(a);}version[a]++;for(const c of groups.keys()){if(c===a||(locked.has(c)&&(!absorb||locked.has(a))))continue;const d=Math.max(matrix[a][c],matrix[b][c]);matrix[a][c]=matrix[c][a]=d;if(d<=1)push([d,Math.min(a,c),Math.max(a,c),version[Math.min(a,c)],version[Math.max(a,c)]]);}if(++counter%25===0){if(signal())throw Error('中止');progress(.65+.35*(1-groups.size/Math.max(n,1)));await tick();}}
   if(signal())throw Error('中止');return [...groups.values()].map(ids=>ids.map(i=>sorted[i].id).sort((a,b)=>a-b)).sort((a,b)=>b.length-a.length||a[0]-b[0]);
 }
 // zero: {right:Set,left:Set} of group indices whose every final pair value is 0. Such first-side groups leave the
