@@ -53,7 +53,17 @@ console.log('VFM tests passed',JSON.stringify({ownNames:own,master,pairs:out.cou
  assert.ok(r.groups.right.some(g=>groupKey(g)==='0,1'),'A and Agrave share a first-side group');assert.ok(r.groups.left.some(g=>groupKey(g)==='2,3'),'O and Oacute share a second-side group');
  // explicit classes (one of the accepted shapes): class pair + glyph exception
  const cls=parseVfm(JSON.stringify({dataType:'com.fontlab.metrics',masters:{M:{pairs:{'@A':{'@O':'-30'},A:{O:'-10'}},kerningClasses:[{name:'A',names:['A','Agrave'],'1st':true},{name:'O',names:['O','Oacute'],'2nd':true}]}},upm:2000}));
- const rc=readVfm(cls,'M',f);assert.equal(rc.source,'classes');assert.equal(rc.pairs.get('1:3'),-15,'class value, converted to 1000 UPM');assert.equal(rc.pairs.get('0:2'),-5,'glyph exception wins');assert.deepEqual(rc.groups.right,[[0,1]]);assert.deepEqual(rc.groups.left,[[2,3]]);
+ const rc=readVfm(cls,'M',f);assert.equal(rc.source,'classes');assert.equal(rc.pairs.get('1:3'),-15,'class value, converted to 1000 UPM');assert.equal(rc.pairs.get('0:2'),-5,'glyph exception wins');assert.deepEqual(rc.groups.right,[[0,1],[2],[3]],'kerned glyphs never on the first side stay alone there (the .vfm leaves them at 0)');assert.deepEqual(rc.groups.left,[[2,3],[0],[1]]);
+ // classes written out glyph by glyph, with one exception inside the class: still one class
+ {const {inferGroups}=await import('./src/vfm.js');const rows=new Map(),cols=new Map(),put=(a,b,v)=>{(rows.get(a)||rows.set(a,new Map()).get(a)).set(b,v);(cols.get(b)||cols.set(b,new Map()).get(b)).set(a,v);};
+  for(const a of [0,1,2])for(let b=10;b<20;b++)put(a,b,-b*5);put(1,19,-60);for(let b=10;b<20;b++)put(3,b,-10);
+  const g=inferGroups(rows,cols);assert.ok(g.right.some(x=>groupKey(x)==='0,1,2'),'an exception cell does not split the class');assert.ok(g.right.some(x=>groupKey(x)==='3'));}
+ // FontLab names of unencoded glyphs: "_<CID>" and "<base>.<feature>" (GSUB), checked against the metrics in the .vfm
+ {const {nameIndex}=await import('./src/vfm.js');const gl=[{u:[],w:1000},{u:[65],w:600},{u:[],w:620},{u:[],w:900}];
+  const font={tables:{cff:{topDict:{ros:['Adobe','Japan1',6]}},gsub:{features:[{tag:'ital',feature:{lookupListIndexes:[0]}}],lookups:[{lookupType:1,subtables:[{substFormat:2,coverage:{format:1,glyphs:[1]},substitute:[2]}]}]}},kgCids:Uint32Array.from([0,34,9354,9402]),
+   glyphs:{length:4,get:i=>({name:'',unicodes:gl[i].u,advanceWidth:gl[i].w,getBoundingBox:()=>({x1:0,x2:gl[i].w-50,y1:0,y2:700})})}};
+  const L=w=>({layers:{M:{width:w,xmin:0,xmax:w-50,ymin:0,ymax:700}}});const ref=parseVfm(JSON.stringify({dataType:'com.fontlab.metrics',masters:{M:{pairs:{}}},metrics:{A:L(600),'A.ital':L(620),_9402:L(900),'A.vrt2':L(600)},upm:1000}));
+  const look=nameIndex(font,ref,'M');assert.equal(look('A'),1);assert.equal(look('A.ital'),2,'A.ital = A through the ital feature');assert.equal(look('_9402'),3,'_9402 = CID 9402');assert.equal(look('A.vrt2'),1,'no such substitution: falls back to the metrics (unique match)');}
  // kept values: no threshold, no collision raise; manual still wins
  const raw2={pairs:[{a:0,b:2,c1:0,c2:0,ideal:-80,safe:-5,protected:false,confidence:true,opticalBefore:[null],opticalTarget:[null]},{a:1,b:2,c1:0,c2:0,ideal:-80,safe:-5,protected:false,confidence:true,opticalBefore:[null],opticalTarget:[null]}]};
  const kr=resolveKerning(raw2,kernDefaults,{},{},{classes:{'0:0':-3},pairs:{'1:2':-40}});assert.equal(kr.map['0:2'],-3);assert.equal(kr.map['1:2'],-40);assert.equal(kr.pairs[1].reason,'vfm');

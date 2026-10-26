@@ -4,9 +4,10 @@ Geometry is normalized to 1000 UPM, y up. Every function here must give the same
 the JavaScript version: tests/test_parity.py checks that against the JS code on the bundled font.
 Bump CORE_VERSION whenever a change alters any computed value; model packages record it.
 """
+import unicodedata
 import math
 
-CORE_VERSION = "0.5.1"
+CORE_VERSION = "0.5.2"
 FEATURE_VERSION = 2
 DEFAULTS = dict(shape=8, bearing=8, local=24, missing=0.06, step=6, strength=0)
 MAX_STRENGTH = 200
@@ -190,16 +191,19 @@ def grouping_grid(items, step):
 
 # ---- optical kerning measurement (kerning.js) ----
 def case_type(unicodes):
+    """Latin capitals / small letters (accented and extended ones too, not fullwidth forms), ASCII digits."""
     u = unicodes[0] if unicodes else None
     if u is None:
         return 'X'
-    if 65 <= u <= 90:
-        return 'U'
-    if 97 <= u <= 122:
-        return 'L'
     if 48 <= u <= 57:
         return 'D'
-    return 'X'
+    if 0xFF00 <= u <= 0xFFEF:
+        return 'X'
+    c = chr(u)
+    if not unicodedata.name(c, '').startswith('LATIN '):
+        return 'X'
+    cat = unicodedata.category(c)
+    return 'U' if cat in ('Lu', 'Lt') else 'L' if cat == 'Ll' else 'X'
 
 
 def pair_kind(a, b):

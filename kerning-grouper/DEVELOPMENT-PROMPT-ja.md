@@ -52,7 +52,7 @@
 - 和文検証はユーザーの指定により漢字を除外する。
 - 現在の和文サンプルは、ひらがな・カタカナ・長音・小書き文字・濁音・半濁音・約物を含む174文字。同梱フォントはこれにASCIIを加えて収録（v0.5）。
 - 空輪郭・結合マーク等は対象外。未収録文字を通知する。
-- 制限：読込20000グリフまで、分類1回800グリフまで、カーニング生成320グリフまで。
+- 制限：読込65535グリフまで、分類1回800グリフまで、カーニング生成320グリフまで。
 - 可変フォント、CFF2、カラーフォント等は現行版では未対応。静的単色フォントを使う。
 
 ## 5. 和欧混植について
@@ -257,3 +257,7 @@ UI検証：test-ui.mjs / test-kerning-ui.mjs。Playwrightと実行可能なChrom
 - これより前の節の「作業JSON」「旧作業JSONの復元」は v0.5.5 までの履歴。
 
 - （追記）お作法のグループは閉じたグループ：engine は conventionGroups の結果を fixed に足し、cluster の fixedAbsorb をそのグループだけ false にする（params.absorbFixed は手で決めたグループにだけ効く）。形の分類は、お作法のグループに字を加えない。字ごとの例外表（SOLO、大小の分離タグ）は試したうえで入れていない。テストは test-conventions.mjs の「convention groups are closed」。
+
+- （v0.5.6 追記）vfm.js：cidMap(buffer, font)（CFF の charset から gid→CID。app は読み込み時に font.kgCids に入れる）、nameIndex は「FontLab 名 → _CID → 元の字＋GSUB 機能（型1・型3、拡張型7も）→ 幅と外形の一意一致」の順。CID と機能で見つけたものは VFM の metrics（幅・xmin/xmax/ymin/ymax、誤差1）と一致するときだけ採用。readVfm は names（id→VFM の名前）も返す。
+- vfm.js：inferGroups(rows, cols)。行を列グループごとの多数値に圧縮して比べ、差が 3 以下かつ 10% 以下（8 項目以上）なら同じグループ。行と列を交互に2回。評価は eval/dump.py と eval/infer.py（20書体の GPOS クラスを正解に）。readVfm は片側に現れない字をその側の単独グループとして足す。
+- kerning.js caseType：Script=Latin の Lu/Lt → U、Ll → L（全角 FF00–FFEF は X）。kg-trainer core.case_type も同じ（CORE_VERSION 0.5.2）。学習モデルの特徴量は変えていない。
