@@ -256,4 +256,4 @@ UI検証：test-ui.mjs / test-kerning-ui.mjs。Playwrightと実行可能なChrom
 - kerning-ui.js：serialize／restore を削除、getSettings／setSettings（null で初期値）を追加。手で入れた値は保存しない（VFM に書き出す前提）。
 - これより前の節の「作業JSON」「旧作業JSONの復元」は v0.5.5 までの履歴。
 
-- （追記）conventions.js の separationTag(ch, side)：欧文の大小（|U／|L）と SOLO の字（|solo-x、baseOf で決めるのでアクセント付きも同じ）。engine は params.convention のとき、既存の separation（なければ mixScripts=false の文字体系）にこのタグを足した separation を conventionGroups と cluster の両方に渡す。
+- （追記）お作法のグループは閉じたグループ：engine は conventionGroups の結果を fixed に足し、cluster の fixedAbsorb をそのグループだけ false にする（params.absorbFixed は手で決めたグループにだけ効く）。形の分類は、お作法のグループに字を加えない。字ごとの例外表（SOLO、大小の分離タグ）は試したうえで入れていない。テストは test-conventions.mjs の「convention groups are closed」。

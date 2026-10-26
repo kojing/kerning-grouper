@@ -16,18 +16,12 @@ const SIDE={'Æ':['A','E'],'Œ':['O','E'],'æ':['a','e'],'œ':['o','e'],'Ð':['D
 // Base letters that share a side by convention (left = the glyph's left edge = pair second; right = pair first).
 export const CLASSIC={left:['BDEFHIKLMNPR','CGOQ','bhkl','mnpr','cdeoq','vwy','VW'],right:['HIMN','DOQ','hmn','bop','vwy','VW']};
 const RIGHT_CARON=new Set([...'ďľťĽ']);
-// Letters that designers keep in a group of their own on that side (alone in ≥85% of 20 OFL fonts' kerning):
-// f's crossbar, t, the diagonals A V-like X Y, S s … Their accented forms stay with them.
-export const SOLO={left:'AJSTUXYZafjstuxz',right:'ABCEFGLPRSTXYZcfkrstxz'};
 const SIDES=s=>s==='left'?0:1;
 
 // The base letter a glyph follows on one side (itself when none).
 export function baseOf(ch,side){if(SIDE[ch])return SIDE[ch][SIDES(side)];const d=ch.normalize('NFD');if(d.length>1&&d[0]!==ch){const b=[...d][0];return /[\x00-\x7f]/.test(b)?b:baseOf(b,side);}return ch;}
 // Why a glyph stays apart on this side, or ''.
 export function protrudes(ch,side){if(side!=='right')return'';const d=[...ch.normalize('NFD')];if(d.includes('̛'))return'horn';if(RIGHT_CARON.has(ch))return'caron';if(d.includes('゙')||d.includes('゚'))return'dakuten';return'';}
-// Separation tag on one side: Latin capitals and small letters never share a group (designers almost never mix
-// them: 4 of 204 groups), and SOLO letters keep a group of their own. '' for anything else (kana, symbols…).
-export function separationTag(ch,side){if(!ch)return'';const b=baseOf(ch,side);if(!/^[A-Za-z]$/.test(b))return'';return(b===b.toUpperCase()?'|U':'|L')+(SOLO[side].includes(b)?'|solo-'+b:'');}
 // Convention key on one side: the classic group, else the base letter; '' when the glyph stays apart.
 export function conventionKey(ch,side){if(protrudes(ch,side))return'';const b=baseOf(ch,side);const k=CLASSIC[side].findIndex(s=>s.includes(b));return k>=0?'classic-'+k:'base-'+b;}
 
