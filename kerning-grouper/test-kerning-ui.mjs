@@ -23,10 +23,10 @@ const ms=()=>page.locator('[data-kmergestat]').textContent();await page.locator(
 if(!await page.evaluate(()=>!!document.querySelector('[data-kerning-grouper]').__kerning.getKerning())||!/書き出しのクラス|ありませんでした/.test(await ms())){await page.locator('[data-kgen]').click();for(let i=0;i<600&&!/書き出しのクラス|ありませんでした/.test(await ms());i++)await page.waitForTimeout(100);}
 assert.equal(await page.locator('[data-knumber=merge]').inputValue(),'10');const m=(await ms()).match(/先頭 (\d+) → (\d+)・後ろ (\d+) → (\d+)/);assert.ok(m&&(+m[2]<+m[1]||+m[4]<+m[3]),'fewer export classes');
 const k=await page.evaluate(()=>{const r=document.querySelector('[data-kerning-grouper]').__kerning.getKerning(),b=r.unmerged.map;let mx=0;for(const p of r.pairs)if(!p.protected)mx=Math.max(mx,Math.abs(p.value-b[p.key]));return mx;});assert.ok(k<=10,'no value moves more than the tolerance');
-await page.locator('[data-knumber=merge]').fill('0');assert.equal(await ms(),'');
-await page.locator('[data-krange=step]').fill('10');assert.equal(await page.locator('[data-knumber=step]').inputValue(),'10');assert.ok(await page.evaluate(()=>document.querySelector('[data-kerning-grouper]').__kerning.getKerning().classes.every(c=>c.manual||c.kept||c.raised||c.value%10===0)),'values on the 10 grid');
+await page.locator('[data-knumber=merge]').fill('0');for(let i=0;i<40&&await ms()!=='';i++)await page.waitForTimeout(50);assert.equal(await ms(),'');
+await page.locator('[data-krange=step]').fill('10');await page.waitForTimeout(600);assert.equal(await page.locator('[data-knumber=step]').inputValue(),'10');assert.ok(await page.evaluate(()=>document.querySelector('[data-kerning-grouper]').__kerning.getKerning().classes.every(c=>c.manual||c.kept||c.raised||c.value%10===0)),'values on the 10 grid');
 await page.locator('[data-krange=step]').fill('0');assert.equal(await page.locator('[data-knumber=step]').inputValue(),'1','the first stop is 1');
-await page.locator('[data-knumber=merge]').fill('10');}
+await page.locator('[data-knumber=merge]').fill('10');await page.waitForTimeout(600);}
 {// Import a .vfm (the one exported above): groups and kerning come back, and saving rewrites that .vfm.
 const R=()=>page.evaluate(()=>0);const txt=async s=>page.locator(s).textContent();
 await page.locator('[data-tab=target]').click();await page.locator('[data-vfmfile]').setInputFiles('/tmp/kerning-generated-test.vfm');

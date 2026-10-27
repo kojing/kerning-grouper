@@ -137,7 +137,7 @@ export function mount(host,options={}){if(host.__kerning)return host.__kerning;c
  for(const[k]of labels)$(`[data-number=${k}]`).onblur=()=>syncControls();
  syncControls();
  $('[data-step]').onchange=e=>{params.step=+e.target.value;schedule();};$('[data-reset]').onclick=()=>{params={...defaults};syncControls();schedule();};
- function selectionUI(){ $('[data-count]').textContent=`選択 ${selected.size} / ${glyphs.length} グリフ`;$('[data-breakdown]').textContent=font?`規則に該当 ${lastParts.cat} − 除外 ${lastParts.excluded||0}`+(selected.size>800?' · 800を超えています':selected.size>320?' · カーニング生成は320まで':''):'';$('[data-breakdown]').className=selected.size>800?'danger':selected.size>320?'warning':'';textInfo();mixInfo();}
+ function selectionUI(){ $('[data-count]').textContent=`選択 ${selected.size} / ${glyphs.length} グリフ`;$('[data-breakdown]').textContent=font?`規則に該当 ${lastParts.cat} − 除外 ${lastParts.excluded||0}`+(selected.size>800?' · 800を超えています':''):'';$('[data-breakdown]').className=selected.size>800?'danger':'';textInfo();mixInfo();}
 
  function textChars(){return[...new Set(Array.from($('[data-selecttext]').value).filter(ch=>!/\s/u.test(ch)))];}
  function catIds(){const on=new Set($$('[data-category]').filter(e=>e.checked).map(e=>e.dataset.category));return new Set(glyphs.filter(g=>!forbidden(g)&&[...category(g)].some(id=>on.has(id))).map(g=>g.id));}
@@ -236,7 +236,7 @@ export function mount(host,options={}){if(host.__kerning)return host.__kerning;c
  function applyStored(v){if(!v)return;restoring=true;try{
   for(const[k,,,,,,hmin,hmax]of labels){const x=v.params?.[k];if(Number.isFinite(x)&&x>=hmin&&x<=hmax)params[k]=x;}if([2,4,6,10].includes(v.params?.step)){params.step=v.params.step;$('[data-step]').value=String(v.params.step);}syncControls();
   if(typeof v.convention==='boolean'){useConvention=v.convention;$('[data-convention]').checked=useConvention;}
-  if(Array.isArray(v.rules)){const ok=new Set(unicodeRules.map(r=>r.id));$$('[data-category]').forEach(e=>e.checked=v.rules.includes(e.dataset.category));}
+  if(Array.isArray(v.rules)){if(v.rules.includes('greekcyr'))v.rules=[...v.rules,'greek','cyrillic'];const ok=new Set(unicodeRules.map(r=>r.id));$$('[data-category]').forEach(e=>e.checked=v.rules.includes(e.dataset.category));}
   if(typeof v.exclude==='string')$('[data-selecttext]').value=v.exclude.slice(0,20000);
   if(v.regionAllow&&typeof v.regionAllow==='object'){regionAllow={};for(const[k,x]of Object.entries(v.regionAllow))if(/^[a-z]+>[a-z]+$/.test(k))regionAllow[k]=!!x;}
   if(Number.isFinite(v.budget)&&v.budget>=1024)$('[data-budget]').value=v.budget;

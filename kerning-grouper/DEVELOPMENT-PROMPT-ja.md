@@ -52,7 +52,7 @@
 - 和文検証はユーザーの指定により漢字を除外する。
 - 現在の和文サンプルは、ひらがな・カタカナ・長音・小書き文字・濁音・半濁音・約物を含む174文字。同梱フォントはこれにASCIIを加えて収録（v0.5）。
 - 空輪郭・結合マーク等は対象外。未収録文字を通知する。
-- 制限：読込65535グリフまで、分類1回800グリフまで、カーニング生成320グリフまで。
+- 制限：読込65535グリフまで、分類1回800グリフまで、カーニング生成800グリフまで（v0.5.6 で 320 から引き上げ）。
 - 可変フォント、CFF2、カラーフォント等は現行版では未対応。静的単色フォントを使う。
 
 ## 5. 和欧混植について
@@ -266,3 +266,4 @@ UI検証：test-ui.mjs / test-kerning-ui.mjs。Playwrightと実行可能なChrom
 - kerning.js：settings.step（1–50、生成値の丸め。クラス値・例外・約物の規則。接触回避の引き上げは切り上げ。手の値・VFM の値は丸めない）と settings.merge（0–100、初期値 10）。mergeClasses(pre, {tolerance, locked}) → {right/left: Map(グループ→代表), values: 元のクラス値, tolerance, classes}。行（先頭）と列（後ろ）を交互に2周、節約バイト（2×相手側のクラス数+2）−例外バイト（4×組＋2×セル）が正のものを大きい順に合併。値は加重中央値、許容差を超える組は merge-exception で元の値。resolveKerning(raw, settings, mc, mp, kept, merge) は合併後のバケットで値を決め、classes[] は元のグループの組ごとに出す（merged に合併キー）。nonzero は合併後のクラス数。kerning-ui：resolved.unmerged（合併前）、resolved.merge、resolved.exportGroups（容量の推定に使う。app capacity）。値の刻みのスライダーは 0〜20 を 5 刻みで、0 は 1 として扱う。テストは test-merge.mjs と test-kerning-ui。
 - mergeClasses の安全規則：生成していないセル（値なし）を null とし、メンバーの生成/非生成が列で食い違うと合併不可。0 と非0 が入れ替わる組は許容差内でも例外（resolveKerning の merge-exception も同じ判定）。kerning-ui generate：merge>0 のとき「クラスを再整理しています…」を表示してから recalculate、完了メッセージにクラス数。
 - お作法+：お作法のグループは常に形の近い字を取り込む（engine の fixedAbsorb＝true、完全リンク）。params.conventionPlus=false で閉じたグループにできるが UI には出さない（テスト用）。
+- caseType：Script=Latin / Greek / Cyrillic の Lu・Lt → U、Ll → L（kg-trainer core.case_type も、CORE_VERSION 0.5.3）。unicode-rules：greekcyr を greek / cyrillic に分割（app は保存設定の greekcyr を両方に読み替え）。generateKerning と UI の上限 800。mergeClasses は列ごとの値を整列リストで持ち、2つの中央値を併合で取り、例外の費用が節約分を超えた時点で打ち切る（同じ結果で約5倍速い）。kerning-ui：step・merge の変更は 250ms 待ってから再計算。

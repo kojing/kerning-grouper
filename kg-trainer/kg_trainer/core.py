@@ -7,7 +7,7 @@ Bump CORE_VERSION whenever a change alters any computed value; model packages re
 import unicodedata
 import math
 
-CORE_VERSION = "0.5.2"
+CORE_VERSION = "0.5.3"
 FEATURE_VERSION = 2
 DEFAULTS = dict(shape=8, bearing=8, local=24, missing=0.06, step=6, strength=0)
 MAX_STRENGTH = 200
@@ -191,7 +191,7 @@ def grouping_grid(items, step):
 
 # ---- optical kerning measurement (kerning.js) ----
 def case_type(unicodes):
-    """Latin capitals / small letters (accented and extended ones too, not fullwidth forms), ASCII digits."""
+    """Latin / Greek / Cyrillic capitals and small letters (accented and extended ones too, not fullwidth forms), ASCII digits."""
     u = unicodes[0] if unicodes else None
     if u is None:
         return 'X'
@@ -200,7 +200,7 @@ def case_type(unicodes):
     if 0xFF00 <= u <= 0xFFEF:
         return 'X'
     c = chr(u)
-    if not unicodedata.name(c, '').startswith('LATIN '):
+    if not unicodedata.name(c, '').startswith(('LATIN ', 'GREEK ', 'CYRILLIC ')):
         return 'X'
     cat = unicodedata.category(c)
     return 'U' if cat in ('Lu', 'Lt') else 'L' if cat == 'Ll' else 'X'

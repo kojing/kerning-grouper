@@ -25,8 +25,8 @@ const pause=()=>new Promise(r=>setTimeout(r,0));
 // Accepted input ranges (wider than the sliders). Bounds come from meaning or cost, not taste.
 export const KERN_LIMITS=[['optical',0,100,'機械判定との配分の割合のため'],['spacing',-500,500,'1/2 em を超える一律調整は想定外のため'],['minimum',0,200,'接触判定の計算量が急増するため'],['limit',0,1000,'1 em を超える補正は想定外のため'],['threshold',0,1000,'1 em まで'],['tolerance',0,1000,'1 em まで'],['tsumeAmount',0,500,'1組で1/2 em を超える字詰めは想定外のため'],['tsumeHira',0,300,'基準の3倍まで'],['tsumeKata',0,300,'基準の3倍まで'],['tsumeSmall',0,300,'基準の3倍まで'],['keepPeriod',0,500,'約物の空き（二分）を超えて開けることはできないため'],['keepComma',0,500,'約物の空き（二分）を超えて開けることはできないため'],['keepBracket',0,500,'約物の空き（二分）を超えて開けることはできないため'],['keepMiddle',0,250,'中点の空き（四分）を超えて開けることはできないため'],['step',1,50,'1/20 em を超える刻みは想定外のため'],['merge',0,100,'1/10 em を超える差は同じ値と見なせないため']];
 export function validateKernSettings(input){const out={...kernDefaults};for(const [key,min,max]of KERN_LIMITS){if(input[key]!==undefined){if(!Number.isFinite(input[key])||input[key]<min||input[key]>max)throw Error('カーニング設定が範囲外です: '+key);out[key]=input[key];}}if(input.references!==undefined){if(typeof input.references!=='string'||input.references.length>200)throw Error('基準ペアは200文字以内で指定してください。');out.references=input.references;}if(input.protectDigits!==undefined)out.protectDigits=!!input.protectDigits;if(input.exceptions!==undefined)out.exceptions=!!input.exceptions;if(input.zeroSaturated!==undefined)out.zeroSaturated=!!input.zeroSaturated;if(input.tsume!==undefined)out.tsume=!!input.tsume;if(input.keepSpacing!==undefined)out.keepSpacing=!!input.keepSpacing;if(input.learned!==undefined)out.learned=!!input.learned;if(input.bracketQuarter===true&&input.keepBracket===undefined)out.keepBracket=250;if(input.punct!==undefined){if(!['off','tsume','beta'].includes(input.punct))throw Error('約物の規則が不正です: '+input.punct);out.punct=input.punct;}return out;}
-// Latin capitals and small letters, accented and extended ones too (À Ø ŋ…), but not the fullwidth forms.
-function caseType(g){const u=g.unicodes?.[0];if(u===undefined)return'X';if(u>=48&&u<=57)return'D';if(u>=0xff00&&u<=0xffef)return'X';const c=String.fromCodePoint(u);if(!/\p{Script=Latin}/u.test(c))return'X';return /\p{Lu}|\p{Lt}/u.test(c)?'U':/\p{Ll}/u.test(c)?'L':'X';}
+// Latin, Greek and Cyrillic capitals and small letters, accented and extended ones too (À Ø ŋ ά Ж…), not fullwidth forms.
+function caseType(g){const u=g.unicodes?.[0];if(u===undefined)return'X';if(u>=48&&u<=57)return'D';if(u>=0xff00&&u<=0xffef)return'X';const c=String.fromCodePoint(u);if(!/\p{Script=Latin}|\p{Script=Greek}|\p{Script=Cyrillic}/u.test(c))return'X';return /\p{Lu}|\p{Lt}/u.test(c)?'U':/\p{Ll}/u.test(c)?'L':'X';}
 export function pairKind(a,b){const x=caseType(a),y=caseType(b);if((x==='U'||x==='L')&&(y==='U'||y==='L'))return x+y;return 'other';}
 function gaussianEdge(edge,scale,step){const n=edge.length;let offset=Infinity;for(const v of edge)if(v!==null)offset=Math.min(offset,v);if(!Number.isFinite(offset))offset=0;const radius=Math.ceil(3*scale.y/step),kernel=[];let sum=0;for(let k=-radius;k<=radius;k++){const w=Math.exp(-.5*(k*step/scale.y)**2);kernel.push(w);sum+=w;}const field=new Float64Array(n),mask=new Float64Array(n),density=edge.map(v=>v===null?0:Math.exp(-(v-offset)/scale.x));for(let i=0;i<n;i++){let f=0,m=0;for(let k=-radius;k<=radius;k++){const j=i+k;if(j<0||j>=n||edge[j]===null)continue;const w=kernel[k+radius]/sum;f+=density[j]*w;m+=w;}field[i]=f;mask[i]=m;}return{field,mask,offset};}
 // A rounded horizontal expansion of the left edge. The half-cell guard makes
@@ -36,7 +36,7 @@ export function measurePair(a,b){const optical=[];for(let s=0;s<scales.length;s+
 // Optical/mechanical blend toward a target, before the reference band, limit and safety are applied.
 export function desiredOf(m,target,p){let delta=0,w=0;for(let s=0;s<scales.length;s++)if(m.optical[s]!==null&&target.optical[s]!==null){delta+=scales[s].w*(target.optical[s]-m.optical[s]);w+=scales[s].w;}const hasOptical=w>0,optical=hasOptical?delta/w:0;const mechanical=m.gap!==null?target.gap-m.gap:0;const blend=p.optical/100;return{hasOptical,optical,mechanical,desired:hasOptical?blend*optical+(1-blend)*mechanical:0};}
 // pairFilter = {region:{glyphId:regionId}, deny:['A>B',...]}: pairs whose region combination is denied are not evaluated.
-export async function generateKerning({items,groups,settings,mixScripts=true,pairFilter=null,metrics=null},progress=()=>{},cancelled=()=>false){const p=validateKernSettings(settings);if(!items.length)throw Error('対象グリフがありません。');if(items.length>320)throw Error('試作版のカーニング生成は320グリフまでです。対象を絞ってください。');
+export async function generateKerning({items,groups,settings,mixScripts=true,pairFilter=null,metrics=null},progress=()=>{},cancelled=()=>false){const p=validateKernSettings(settings);if(!items.length)throw Error('対象グリフがありません。');if(items.length>800)throw Error('カーニング生成は800グリフまでです。対象を絞ってください。');
  const step=2;let low=Infinity,high=-Infinity;for(const g of items)for(const s of g.segments){low=Math.min(low,s[1],s[3]);high=Math.max(high,s[1],s[3]);}low=Math.floor((low-270)/step)*step;high=Math.ceil((high+270)/step)*step;if((high-low)/step>2500)throw Error('縦範囲が大きすぎます。対象を絞ってください。');const ys=[];for(let y=low+step/2;y<high;y+=step)ys.push(y);
  const prepared=new Map();for(let i=0;i<items.length;i++){if(cancelled())throw Error('中止');const g=items[i],pr=profile(g,ys);prepared.set(g.id,{...g,...pr,rightFields:scales.map(s=>gaussianEdge(pr.right,s,step)),leftFields:scales.map(s=>gaussianEdge(pr.left,s,step)),expanded:expandedLeft(pr.left,p.minimum,step)});if(i%4===0){progress('光学プロファイル作成',.25*i/items.length);await pause();}}
  const info=new Map();for(const g of items){let x0=Infinity,x1=-Infinity;for(const sg of g.segments){x0=Math.min(x0,sg[0],sg[2]);x1=Math.max(x1,sg[0],sg[2]);}const adv=g.advance,cls=glyphJaClass(g,adv),lsb=Number.isFinite(x0)?x0:adv/2,rsb=Number.isFinite(x1)?adv-x1:adv/2,room=v=>Math.max(0,v-p.minimum/2);let eL=0,eR=0,pL=0,pR=0,punctWarn='';
@@ -85,27 +85,34 @@ export function mergeClasses(pre,{tolerance=0,locked={right:new Set(),left:new S
  const live={right:[...R].filter(g=>!pre.zeroGroups.right.has(g)),left:[...L].filter(g=>!pre.zeroGroups.left.has(g))};
  for(const sd of ['right','left'])for(const g of live[sd])out[sd].set(g,g);
  const wmed=list=>{let t=0;for(const x of list)t+=x[1];if(!t)return list[0]?.[0]??0;const s=[...list].sort((a,b)=>a[0]-b[0]);let acc=0;for(const [v,w]of s){acc+=w;if(acc>=t/2)return v;}return 0;};
+ // A cell that was never generated (a region pair that is not kerned) must stay unkerned in the matrix: classes are
+ // merged only where all members agree on which cells are generated. A value that was 0 stays 0 and a kerned value
+ // stays kerned (otherwise it is an exception), so a merge never adds kerning between glyphs that had none.
+ const off=(x,m)=>(x===0)!==(m===0);
+ // per class and column: the glyph-pair values as a list sorted by value [[v, w]…] (null = not generated)
+ const ins=(list,x)=>{let lo=0,hi=list.length;while(lo<hi){const m=(lo+hi)>>1;if(list[m][0]<x[0])lo=m+1;else hi=m;}list.splice(lo,0,x);};
+ // weighted median of two sorted lists without copying them
+ const med2=(A,B)=>{let t=0;for(const x of A)t+=x[1];for(const x of B)t+=x[1];let i=0,j=0,acc=0;if(!t)return(A[0]||B[0])[0];
+  while(i<A.length||j<B.length){const x=j>=B.length||(i<A.length&&A[i][0]<=B[j][0])?A[i++]:B[j++];acc+=x[1];if(acc>=t/2)return x[0];}return 0;};
  const pass=sd=>{const other=sd==='right'?'left':'right',cols=[...new Set(live[other].map(g=>out[other].get(g)))],ci=new Map(cols.map((c,i)=>[c,i])),n=cols.length,saved=2*(n+1);
-  const cls=new Map();for(const g of live[sd]){const r=out[sd].get(g);if(!cls.has(r))cls.set(r,{m:[],vals:Array.from({length:n},()=>[])});const c=cls.get(r);c.m.push(g);
-   for(const og of live[other]){const k=sd==='right'?g+':'+og:og+':'+g;c.vals[ci.get(out[other].get(og))].push(val.has(k)?[val.get(k),cnt.get(k)]:[null,0]);}}
-  // → [bytes saved net of exceptions, total change] for merging classes a and b
-  // A cell that was never generated (a region pair that is not kerned) must stay unkerned in the matrix: classes are
-  // merged only where all members agree on which cells are generated. A value that was 0 stays 0 and a kerned value
-  // stays kerned (otherwise it is an exception), so a merge never adds kerning between glyphs that had none.
-  const off=(x,m)=>(x===0)!==(m===0);
-  const gain=(a,b)=>{let exc=0,cells=0,dist=0;for(let j=0;j<n;j++){const A=a.vals[j],B=b.vals[j];const gen=A[0]?.[0]!==null;for(const x of A)if((x[0]!==null)!==gen)return[-Infinity,0];for(const x of B)if((x[0]!==null)!==gen)return[-Infinity,0];if(!gen)continue;
-    let same=true;const v0=A[0][0];for(const x of A)if(x[0]!==v0){same=false;break;}if(same)for(const x of B)if(x[0]!==v0){same=false;break;}if(same)continue;
-    const all=A.concat(B),m=wmed(all);let e=0;for(const [v,w]of all){const d=Math.abs(v-m);if(d>tolerance||off(v,m))e+=w;else dist+=w*d;}if(e){exc+=e;cells++;}}
-   return[saved-(4*exc+2*cells),dist];};
-  const own=(c,j)=>{if(c.vals[j][0]?.[0]===null)return 0;const m=wmed(c.vals[j]);let e=0;for(const [v,w]of c.vals[j])if(Math.abs(v-m)>tolerance||off(v,m))e+=w;return e;};
+  const cls=new Map();for(const g of live[sd]){const r=out[sd].get(g);if(!cls.has(r))cls.set(r,{m:[],vals:Array.from({length:n},()=>[]),gen:new Int8Array(n).fill(-1)});const c=cls.get(r);c.m.push(g);
+   for(const og of live[other]){const k=sd==='right'?g+':'+og:og+':'+g,j=ci.get(out[other].get(og)),has=val.has(k);const st=has?1:0;if(c.gen[j]===-1)c.gen[j]=st;else if(c.gen[j]!==st)c.gen[j]=2;if(has)ins(c.vals[j],[val.get(k),cnt.get(k)]);}}
+  // exceptions a class already carries (bytes), so a merge is charged only for what it adds
+  const ownCost=c=>{let b=0;for(let j=0;j<n;j++){const V=c.vals[j];if(V.length<2)continue;const m=med2(V,[]);let e=0;for(const [v,w]of V)if(Math.abs(v-m)>tolerance||off(v,m))e+=w;if(e)b+=4*e+2;}return b;};
+  for(const c of cls.values())c.own=ownCost(c);
+  // → [bytes saved net of the exceptions it adds, total change], or null when not worth it / not allowed
+  const net=(A,B)=>{const budget=saved+A.own+B.own;let cost=0,dist=0;
+   for(let j=0;j<n;j++){const ga=A.gen[j],gb=B.gen[j];if(ga!==gb||ga===2)return null;if(ga!==1)continue;const X=A.vals[j],Y=B.vals[j];
+    if(X.length&&Y.length&&X[0][0]===X[X.length-1][0]&&Y[0][0]===Y[Y.length-1][0]&&X[0][0]===Y[0][0])continue;
+    const m=med2(X,Y);let e=0;for(const L of [X,Y])for(const [v,w]of L){const d=Math.abs(v-m);if(d>tolerance||off(v,m))e+=w;else dist+=w*d;}
+    if(e){cost+=4*e+2;if(cost>=budget)return null;}}
+   return[budget-cost,dist];};
   const keys=[...cls.keys()].filter(r=>!cls.get(r).m.some(g=>locked[sd]?.has(g)));const D=new Map(),key=(a,b)=>a<b?a+','+b:b+','+a;
-  // exceptions a class already carries are not counted again
-  const net=(a,b)=>{const A=cls.get(a),B=cls.get(b);let [g,d]=gain(A,B);for(let j=0;j<n;j++){const e=own(A,j)+own(B,j);if(e)g+=4*e+2*((own(A,j)?1:0)+(own(B,j)?1:0));}return[g,d];};
-  for(let x=0;x<keys.length;x++)for(let y=x+1;y<keys.length;y++){const [g,d]=net(keys[x],keys[y]);if(g>0)D.set(key(keys[x],keys[y]),[g,d]);}
+  for(let x=0;x<keys.length;x++)for(let y=x+1;y<keys.length;y++){const r=net(cls.get(keys[x]),cls.get(keys[y]));if(r)D.set(key(keys[x],keys[y]),r);}
   const alive=new Set(keys);for(;;){let best=null,bg=0,bd=Infinity;for(const [k,[g,d]]of D)if(g>bg||(g===bg&&d<bd)){bg=g;bd=d;best=k;}if(!best)break;const [a,b]=best.split(',').map(Number),A=cls.get(a),B=cls.get(b);
-   for(let j=0;j<n;j++)A.vals[j].push(...B.vals[j]);A.m.push(...B.m);for(const g of B.m)out[sd].set(g,a);cls.delete(b);alive.delete(b);
+   for(let j=0;j<n;j++){for(const x of B.vals[j])ins(A.vals[j],x);if(A.gen[j]!==B.gen[j])A.gen[j]=2;}A.m.push(...B.m);A.own=ownCost(A);for(const g of B.m)out[sd].set(g,a);cls.delete(b);alive.delete(b);
    for(const k of [...D.keys()]){const [x,y]=k.split(',').map(Number);if(x===a||y===a||x===b||y===b)D.delete(k);}
-   for(const o of alive){if(o===a)continue;const [g,d]=net(a,o);if(g>0)D.set(key(a,o),[g,d]);}}};
+   for(const o of alive){if(o===a)continue;const r=net(A,cls.get(o));if(r)D.set(key(a,o),r);}}};
  pass('right');pass('left');pass('right');pass('left');
  const count=sd=>new Set(live[sd].map(g=>out[sd].get(g))).size;
  return{...out,values:val,tolerance,classes:{right:count('right'),left:count('left'),before:{right:live.right.length,left:live.left.length}}};}

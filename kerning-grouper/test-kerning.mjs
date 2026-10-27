@@ -5,7 +5,7 @@ import {flatten} from './src/core.js';
 import {createEngine} from './src/engine.js';
 import {generateKerning,resolveKerning,kernDefaults,opticalError,pairKind} from './src/kerning.js';
 // Accented and extended Latin letters kern as capitals / small letters (not as 'other', which takes the kana references).
-{const k=s=>pairKind({unicodes:[s.codePointAt(0)]},{unicodes:[s.codePointAt(1)]});assert.equal(k('ÀB'),'UU');assert.equal(k('Aŋ'),'UL');assert.equal(k('øØ'),'LU');assert.equal(k('ＡB'),'other','fullwidth forms stay other');assert.equal(k('Aあ'),'other');}
+{const k=s=>pairKind({unicodes:[s.codePointAt(0)]},{unicodes:[s.codePointAt(1)]});assert.equal(k('ÀB'),'UU');assert.equal(k('Aŋ'),'UL');assert.equal(k('øØ'),'LU');assert.equal(k('ＡB'),'other','fullwidth forms stay other');assert.equal(k('Aあ'),'other');assert.equal(k('ΑΥ'),'UU','Greek capitals');assert.equal(k('Τα'),'UL');assert.equal(k('жД'),'LU','Cyrillic');assert.equal(k('A“'),'other','symbols stay other');}
 import {estimate} from './src/core.js';
 import {defaults} from './src/core.js';
 const bytes=fs.readFileSync(process.env.TEST_FONT||'samples/KGJapaneseTest-Regular.ttf');const font=opentype.parse(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength));
