@@ -18,3 +18,11 @@ assert.equal(res.classes.length,pre.classes.length);
 // value step: class values on the grid
 {const r10=resolveKerning(raw,{...kernDefaults,step:10});assert.ok(r10.classes.every(c=>c.value%10===0));const r1=resolveKerning(raw,kernDefaults);assert.ok(r1.classes.some(c=>c.value%10!==0));}
 console.log('Merge tests passed',JSON.stringify(m.classes));
+// Safety: rows that are kerned in different regions never merge (unkerned cells stay unkerned), and a merge never
+// turns a 0 into kerning or kerning into 0, whatever the tolerance.
+{const P=[];for(let i=0;i<2;i++)for(let j=0;j<4;j++){if(i===0&&j>=2)continue;if(i===1&&j<2)continue;P.push({a:i,b:10+j,c1:i,c2:j,ideal:-40,safe:-500,confidence:true,protected:false,opticalBefore:[100],opticalTarget:[100]});}
+ const pr=resolveKerning({pairs:P},{...kernDefaults,merge:30});const mm=mergeClasses(pr,{tolerance:30});assert.notEqual(mm.right.get(0),mm.right.get(1),'rows kerned in different regions stay apart');}
+{const P=[];const v=[[0,-40,-40,-40,-40,-40],[-25,-40,-40,-40,-40,-40]];for(let i=0;i<2;i++)for(let j=0;j<6;j++)P.push({a:i,b:10+j,c1:i,c2:j,ideal:v[i][j],safe:-500,confidence:true,protected:false,opticalBefore:[100],opticalTarget:[100]});
+ const pr=resolveKerning({pairs:P},{...kernDefaults,merge:30});const mm=mergeClasses(pr,{tolerance:30});const rr=mm.classes?resolveKerning({pairs:P},{...kernDefaults,merge:30},{},{},null,mm):pr;
+ for(const p of rr.pairs)assert.equal(p.value===0,pr.map[p.key]===0,'zero stays zero, kerned stays kerned: '+p.key);}
+console.log('Merge safety tests passed');
