@@ -14,7 +14,7 @@
     "estimatedBytes": 63142,
     "modelRmsBefore": 218.02512935559736,
     "modelRmsAfter": 170.25091988891688,
-    "seconds": 3,
+    "seconds": 5,
     "samples": [
       {
         "text": "のの",
@@ -101,7 +101,7 @@
     "estimatedBytes": 52278,
     "modelRmsBefore": 218.0251293555973,
     "modelRmsAfter": 170.29640434315564,
-    "seconds": 3,
+    "seconds": 4,
     "samples": [
       {
         "text": "のの",
@@ -188,7 +188,7 @@
     "estimatedBytes": 46576,
     "modelRmsBefore": 218.02512935559741,
     "modelRmsAfter": 170.3676303300198,
-    "seconds": 3,
+    "seconds": 4,
     "samples": [
       {
         "text": "のの",
@@ -275,7 +275,7 @@
     "estimatedBytes": 45596,
     "modelRmsBefore": 218.02512935559793,
     "modelRmsAfter": 170.42617958426547,
-    "seconds": 3,
+    "seconds": 4,
     "samples": [
       {
         "text": "のの",
