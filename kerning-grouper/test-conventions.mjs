@@ -36,9 +36,14 @@ assert.ok(same(on,'left','か','が'),'が follows か on the left');assert.ok(!
 assert.ok(on.convention.right.removed.some(x=>x.reason==='dakuten'));
 assert.ok(on.groups.left.length<off.groups.left.length&&on.groups.right.length<=off.groups.right.length,'fewer groups by convention');
 assert.equal(off.convention,null);
-{// convention groups are closed: shape grouping never adds to them, even when strength 40 smooths the outlines
+{// with お作法+ off, convention groups are closed: shape grouping never adds to them, even at strength 40
  const lat=glyphs.filter(g=>/^[A-Za-z]$/.test(String.fromCodePoint(g.unicodes[0])));
- const s40=await createEngine()({glyphs:lat,upm:font.unitsPerEm,fontKey:'s40',params:{...defaults,convention:true,strength:40},fixed:{left:[],right:[]}},()=>{},()=>false);
+ const s40=await createEngine()({glyphs:lat,upm:font.unitsPerEm,fontKey:'s40',params:{...defaults,convention:true,conventionPlus:false,strength:40},fixed:{left:[],right:[]}},()=>{},()=>false);
  for(const sd of ['left','right']){const conv=s40.convention[sd].groups;for(const cg of conv){const g=s40.groups[sd].find(x=>x.includes(cg[0]));assert.deepEqual([...g].sort((a,b)=>a-b),[...cg].sort((a,b)=>a-b),'a convention group stays exactly as made');}}
  const fl=s40.groups.left.find(g=>g.includes(id('f')));assert.ok(![...'RHbhkl'].some(c=>fl.includes(id(c))),'f does not join the straight-stem groups');}
+{// お作法+ on (default): a convention group may take in look-alikes, and every convention glyph stays in its group
+ const lat=glyphs.filter(g=>/^[A-Za-z]$/.test(String.fromCodePoint(g.unicodes[0])));
+ const on=await createEngine()({glyphs:lat,upm:font.unitsPerEm,fontKey:'p40',params:{...defaults,convention:true,strength:40},fixed:{left:[],right:[]}},()=>{},()=>false);
+ let grown=0;for(const sd of ['right','left'])for(const cg of on.convention[sd].groups){const g=on.groups[sd].find(x=>x.includes(cg[0]));assert.ok(cg.every(id=>g.includes(id)),'convention members stay together');if(g.length>cg.length)grown++;}
+ assert.ok(grown>0,'some convention groups grew (お作法+)');}
 console.log('Convention tests passed',JSON.stringify({off:[off.groups.right.length,off.groups.left.length],on:[on.groups.right.length,on.groups.left.length],convGroups:[on.convention.right.groups.length,on.convention.left.groups.length]}));

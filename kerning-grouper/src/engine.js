@@ -8,11 +8,12 @@ export function createEngine(){let geometry=new Map(),distances=new Map(),lastKe
  const ys=[];for(let y=low+params.step*.5;y<high;y+=params.step)ys.push(y);
  if(ys.length>10000)throw Error('輪郭の縦範囲が大きすぎます。フォントを確認してください。');
  const items=[];for(let i=0;i<glyphs.length;i++){if(signal())throw Error('中止');const g=glyphs[i];let parsed=geometry.get(g.id);if(!parsed){const segments=flatten(g.commands,1000/upm,Math.min(.35,params.step/8));parsed={...g,segments,advance:g.advance*1000/upm};parsed.profile=profile(parsed,ys);geometry.set(g.id,parsed);}items.push(parsed);if(i%8===0){progress('輪郭解析',i/glyphs.length*.35);await new Promise(r=>setTimeout(r,0));}}
- // params.convention: groups by convention (conventions.js) become fixed groups that may still take in look-alikes;
+ // params.convention: groups by convention (conventions.js) become fixed groups. params.conventionPlus (default on):
+ // shape grouping may add look-alikes to them ("お作法+", complete link: close to every member); off: closed;
  // the user's / imported fixed groups come first and keep their own absorb setting.
  // params.convention: groups by convention (conventions.js) become fixed, closed groups: shape grouping never adds
  // to them (one rule instead of per-letter exceptions); the user's / imported fixed groups keep their own setting.
  const groups={},convention={};for(const [i,side] of ['left','right'].entries()){const own=fixed[side]||[];let fx=own,fa=own.map(()=>params.absorbFixed===true);
-  if(params.convention){const c=conventionGroups(items,side,params,{taken:new Set(own.flat()),sep:params.separation?.[side]});convention[side]={groups:c.groups.map(g=>[...g].sort((a,b)=>a-b)),removed:c.removed};fx=[...own,...c.groups];fa=[...fa,...c.groups.map(()=>false)];}
+  if(params.convention){const c=conventionGroups(items,side,params,{taken:new Set(own.flat()),sep:params.separation?.[side]});convention[side]={groups:c.groups.map(g=>[...g].sort((a,b)=>a-b)),removed:c.removed};fx=[...own,...c.groups];fa=[...fa,...c.groups.map(()=>params.conventionPlus!==false)];}
   groups[side]=await cluster(items,side,{...params,absorbFixed:false},{fixed:fx,fixedAbsorb:fa,cache:distances,signal,progress:p=>progress(side==='left'?'左輪郭を分類':'右輪郭を分類',.35+i*.325+p*.325)});}
  return{items,ys,groups,convention:params.convention?convention:null};};}
