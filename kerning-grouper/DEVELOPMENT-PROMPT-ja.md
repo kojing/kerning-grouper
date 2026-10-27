@@ -267,3 +267,4 @@ UI検証：test-ui.mjs / test-kerning-ui.mjs。Playwrightと実行可能なChrom
 - mergeClasses の安全規則：生成していないセル（値なし）を null とし、メンバーの生成/非生成が列で食い違うと合併不可。0 と非0 が入れ替わる組は許容差内でも例外（resolveKerning の merge-exception も同じ判定）。kerning-ui generate：merge>0 のとき「クラスを再整理しています…」を表示してから recalculate、完了メッセージにクラス数。
 - お作法+：お作法のグループは常に形の近い字を取り込む（engine の fixedAbsorb＝true、完全リンク）。params.conventionPlus=false で閉じたグループにできるが UI には出さない（テスト用）。
 - caseType：Script=Latin / Greek / Cyrillic の Lu・Lt → U、Ll → L（kg-trainer core.case_type も、CORE_VERSION 0.5.3）。unicode-rules：greekcyr を greek / cyrillic に分割（app は保存設定の greekcyr を両方に読み替え）。generateKerning と UI の上限 800。mergeClasses は列ごとの値を整列リストで持ち、2つの中央値を併合で取り、例外の費用が節約分を超えた時点で打ち切る（同じ結果で約5倍速い）。kerning-ui：step・merge の変更は 250ms 待ってから再計算。
+- デモ：make-artifact-demo.mjs の 4 つ目の引数で 2 つ目のサンプル（samples/FiraSans-Regular-subset.ttf）。サンプルは SAMPLES（フォント・規則・強さ・字詰め・プレビュー文）で切り替え、規則を変えたあと選択数が落ち着くのを待ってからグループ作成。
