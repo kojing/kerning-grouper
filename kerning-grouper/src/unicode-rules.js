@@ -28,3 +28,12 @@ export const japanesePreset=['hira','kata','jpunct'];
 export function rulesOf(unicodes){const out=[];for(const r of unicodeRules)if((unicodes||[]).some(u=>r.test(u)))out.push(r.id);return out;}
 // Default for a region pair: kern within the same writing system (欧文×欧文, 和文×和文), not across.
 export function defaultAllowed(a,b){const ga=unicodeRules.find(r=>r.id===a)?.group,gb=unicodeRules.find(r=>r.id===b)?.group;return ga===gb;}
+
+// Short kind of a kerning class for its name: UC / lc (Latin capitals / small letters, accented too), Grk / grk,
+// Cyr / cyr, Fig (digits), Punct (ASCII punctuation and symbols), Sym (other symbols), Hira, Kata, JPunct (Japanese
+// punctuation), FW (fullwidth Latin and digits); Mix when the members are of different kinds.
+export function kindOf(u){if(u==null)return'';const fw=inRange(u,0xFF10,0xFF19)||inRange(u,0xFF21,0xFF3A)||inRange(u,0xFF41,0xFF5A);if(fw)return'FW';
+ if(latin(u)&&L(u))return Lu(u)?'UC':'lc';if(greek(u)&&L(u))return Lu(u)?'Grk':'grk';if(cyrillic(u)&&L(u))return Lu(u)?'Cyr':'cyr';if(u<128&&Nd(u))return'Fig';
+ if(hiragana(u)||inRange(u,0x3040,0x309F))return'Hira';if(katakana(u)||inRange(u,0x30A0,0x30FF)||inRange(u,0x31F0,0x31FF)||inRange(u,0xFF66,0xFF9F))return'Kata';
+ if(inRange(u,0x3000,0x303F)||(inRange(u,0xFF00,0xFFEF)&&(P(u)||S(u))))return'JPunct';if(u<128&&(P(u)||S(u)))return'Punct';if(P(u)||S(u))return'Sym';return'Other';}
+export function classKind(codepoints){const k=new Set(codepoints.map(kindOf).filter(Boolean));return k.size===1?[...k][0]:k.size?'Mix':'';}

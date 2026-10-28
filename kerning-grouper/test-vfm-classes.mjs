@@ -11,7 +11,8 @@ const glyphs=[...'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,'].map(c
 const r=await createEngine()({glyphs,upm:font.unitsPerEm,fontKey:'vc',params:{...defaults,convention:true},fixed:{left:[],right:[]}},()=>{},()=>false);
 const st={...kernDefaults,merge:10};const raw=await generateKerning({...r,settings:st});const pre=resolveKerning(raw,st);const m=mergeClasses(pre,{tolerance:10});const res=resolveKerning(raw,st,{},{},null,m);res.merge=m;
 const lo=id=>Math.min(...(font.glyphs.get(id).unicodes||[1e9]));const cl=exportClasses(res,r.groups,lo);assert.ok(cl.first.some(g=>g.length>1)&&cl.second.some(g=>g.length>1),'there are classes');
-const n=glyphNamer(font),out=buildVfm({pairs:res.pairs,upm:font.unitsPerEm,name:n.name,master:'Regular',targets:r.items.map(g=>g.id),classes:cl}),v=JSON.parse(out.text);
+const {classKind}=await import('./src/unicode-rules.js');const n=glyphNamer(font),out=buildVfm({pairs:res.pairs,upm:font.unitsPerEm,name:n.name,master:'Regular',targets:r.items.map(g=>g.id),classes:cl,className:kernDefaults.className,kindOf:ids=>classKind(ids.map(lo))}),v=JSON.parse(out.text);
+assert.ok(v.masters.Regular.kerningClasses.every(c=>/^(UC|lc|Punct|Mix)_[A-Za-z]+_(1st|2nd|both)$/.test(c.name)),'kind_lead_side: '+v.masters.Regular.kerningClasses.map(c=>c.name).join(' '));
 // the shape FontLab writes
 const M=v.masters.Regular;assert.deepEqual(Object.keys(M),['kerningClasses','pairs']);assert.ok(M.kerningClasses.every(c=>typeof c.name==='string'&&Array.isArray(c.names)&&c.names.length>1&&(c['1st']===true||c['2nd']===true)));
 assert.ok(Object.keys(M.pairs).some(a=>a.startsWith('@'))&&Object.values(M.pairs).some(row=>Object.keys(row).some(b=>b.startsWith('@'))),'class pairs written as @name');
@@ -19,7 +20,7 @@ assert.equal(new Set(M.kerningClasses.map(c=>c.name)).size,M.kerningClasses.leng
 assert.ok(M.kerningClasses.some(c=>c.names[0]==='A'||c.names[0]==='H'||c.names[0]==='O'),'a class is led by its base letter');
 // class names follow the template
 {const t=JSON.parse(buildVfm({pairs:res.pairs,upm:font.unitsPerEm,name:n.name,master:'Regular',targets:r.items.map(g=>g.id),classes:cl,className:'KG {side} {n}'}).text).masters.Regular.kerningClasses;
- assert.ok(t.every(c=>/^KG_(1st_|2nd_)?\d+$/.test(c.name)),'template used, spaces → _: '+t.map(c=>c.name).join(' '));assert.equal(new Set(t.map(c=>c.name)).size,t.length);}
+ assert.ok(t.every(c=>/^KG_(1st|2nd|both)_\d+$/.test(c.name)),'template used, spaces → _: '+t.map(c=>c.name).join(' '));assert.equal(new Set(t.map(c=>c.name)).size,t.length);}
 // read back: classes, and every glyph pair (0 included) exactly as resolved
 const back=readVfm(parseVfm(out.text),'Regular',font);assert.equal(back.source,'classes');
 let checked=0;for(const p of res.pairs){const got=back.pairs.get(p.a+':'+p.b)??0;assert.equal(Math.round(got),Math.round(p.value),'pair '+p.a+':'+p.b);checked++;}

@@ -14,7 +14,7 @@
     "estimatedBytes": 63142,
     "modelRmsBefore": 218.02512935559736,
     "modelRmsAfter": 170.25091988891688,
-    "seconds": 2,
+    "seconds": 3,
     "samples": [
       {
         "text": "のの",
@@ -275,7 +275,7 @@
     "estimatedBytes": 45596,
     "modelRmsBefore": 218.02512935559793,
     "modelRmsAfter": 170.42617958426547,
-    "seconds": 2,
+    "seconds": 3,
     "samples": [
       {
         "text": "のの",

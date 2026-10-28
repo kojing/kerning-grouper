@@ -18,7 +18,7 @@ export function valueFeatures(a,b,m,target,idx,met){const {desired:w0,optical,me
  for(const i of idx)v.push(a.right[i]!==null?a.right[i]:VM.far);for(const i of idx)v.push(b.left[i]!==null?b.left[i]:VM.far);return{x:v.map(quantize),ours};}
 // Snap to 1/1024 so float noise (summation order between Python and JS) never lands on a tree threshold.
 const quantize=x=>Math.floor(x*1024+.5)/1024;
-export const kernDefaults={optical:60,spacing:0,minimum:18,threshold:20,tolerance:18,limit:100,keepSpacing:true,learned:true,references:'HH HO OO nn no oo Hn Ho On Oo',protectDigits:true,exceptions:false,zeroSaturated:false,tsume:false,tsumeAmount:60,tsumeHira:100,tsumeKata:110,tsumeSmall:130,punct:'off',keepPeriod:500,keepComma:250,keepBracket:0,keepMiddle:250,preview:'AVATAR To WA minimum 012345',step:1,merge:10,className:'{lead}_{side}'};
+export const kernDefaults={optical:60,spacing:0,minimum:18,threshold:20,tolerance:18,limit:100,keepSpacing:true,learned:true,references:'HH HO OO nn no oo Hn Ho On Oo',protectDigits:true,exceptions:false,zeroSaturated:false,tsume:false,tsumeAmount:60,tsumeHira:100,tsumeKata:110,tsumeSmall:130,punct:'off',keepPeriod:500,keepComma:250,keepBracket:0,keepMiddle:250,preview:'AVATAR To WA minimum 012345',step:1,merge:10,className:'{kind}_{lead}_{side}'};
 export const scales=[{x:24,y:18,w:.2},{x:60,y:45,w:.5},{x:120,y:90,w:.3}];
 const median=v=>{const s=[...v].sort((a,b)=>a-b);return s.length?(s[(s.length-1)>>1]+s[s.length>>1])/2:0;};
 const pause=()=>new Promise(r=>setTimeout(r,0));
