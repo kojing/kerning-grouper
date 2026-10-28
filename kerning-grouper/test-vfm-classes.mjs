@@ -17,6 +17,9 @@ const M=v.masters.Regular;assert.deepEqual(Object.keys(M),['kerningClasses','pai
 assert.ok(Object.keys(M.pairs).some(a=>a.startsWith('@'))&&Object.values(M.pairs).some(row=>Object.keys(row).some(b=>b.startsWith('@'))),'class pairs written as @name');
 assert.equal(new Set(M.kerningClasses.map(c=>c.name)).size,M.kerningClasses.length,'class names are unique');
 assert.ok(M.kerningClasses.some(c=>c.names[0]==='A'||c.names[0]==='H'||c.names[0]==='O'),'a class is led by its base letter');
+// class names follow the template
+{const t=JSON.parse(buildVfm({pairs:res.pairs,upm:font.unitsPerEm,name:n.name,master:'Regular',targets:r.items.map(g=>g.id),classes:cl,className:'KG {side} {n}'}).text).masters.Regular.kerningClasses;
+ assert.ok(t.every(c=>/^KG_(1st_|2nd_)?\d+$/.test(c.name)),'template used, spaces → _: '+t.map(c=>c.name).join(' '));assert.equal(new Set(t.map(c=>c.name)).size,t.length);}
 // read back: classes, and every glyph pair (0 included) exactly as resolved
 const back=readVfm(parseVfm(out.text),'Regular',font);assert.equal(back.source,'classes');
 let checked=0;for(const p of res.pairs){const got=back.pairs.get(p.a+':'+p.b)??0;assert.equal(Math.round(got),Math.round(p.value),'pair '+p.a+':'+p.b);checked++;}

@@ -39,7 +39,9 @@ export function glyphNamer(font,reference=null,master=null){const own=hasOwnName
 // With a reference .vfm, that file is the base (metrics, other masters kept). Its kerning that involves any glyph
 // outside targets is kept: classes without target glyphs stay as they are with their pairs; pairs that need a class
 // containing a target glyph are written out glyph by glyph for the non-target glyphs (that class is replaced).
-export function buildVfm({pairs,upm,name,master,reference=null,targets=null,classes=null}){const out={},k=upm/1000,fu=v=>Math.round(v*k);let count=0,keptOutside=0,classPairs=0,exceptionPairs=0;
+// className: template for class names — {lead} first glyph's name, {side} 1st / 2nd (empty for a class used on both
+// sides), {n} running number, {count} glyph count. Spaces become _, names are made unique.
+export function buildVfm({pairs,upm,name,master,reference=null,targets=null,classes=null,className='{lead}_{side}'}){const out={},k=upm/1000,fu=v=>Math.round(v*k);let count=0,keptOutside=0,classPairs=0,exceptionPairs=0;
  const T=new Set(targets?[...targets].map(name):pairs.flatMap(p=>[name(p.a),name(p.b)]));const set=(a,b,v)=>{(out[a]||(out[a]={}))[b]=String(v);};
  let keptDefs=[],refDefsRaw=null;
  if(reference&&targets){const v=reference.data,m=v.masters?.[master]||{},defs=classDefs(v,master),byName=new Map(defs.map(c=>[c.name,c])),raw=m.pairs||{};
@@ -56,7 +58,7 @@ export function buildVfm({pairs,upm,name,master,reference=null,targets=null,clas
   const sig=ids=>ids.map(name).sort().join('\u0001'),bySig=new Map(),defs=[],ref1=[],ref2=[];
   const def=(ids,side)=>{if(ids.length<2)return name(ids[0]);const s=sig(ids);let d=bySig.get(s);if(!d){d={name:null,names:ids.map(name),'1st':false,'2nd':false,lead:name(ids[0])};bySig.set(s,d);defs.push(d);}d[side]=true;return d;};
   classes.first.forEach((ids,i)=>ref1[i]=def(ids,'1st'));classes.second.forEach((ids,j)=>ref2[j]=def(ids,'2nd'));
-  for(const d of defs)d.name=uniq(d['1st']&&d['2nd']?d.lead:d.lead+(d['1st']?'_1st':'_2nd'));
+  defs.forEach((d,i)=>{const side=d['1st']&&d['2nd']?'':d['1st']?'1st':'2nd';let x=String(className||'{lead}_{side}').replace(/\{lead\}/g,d.lead).replace(/\{side\}/g,side).replace(/\{n\}/g,String(i+1)).replace(/\{count\}/g,String(d.names.length)).replace(/\s+/g,'_').replace(/^[_.-]+|[_.-]+$/g,'').replace(/([_.-])[_.-]+/g,'$1');d.name=uniq(x||d.lead);});
   const key=r=>typeof r==='string'?r:'@'+r.name;
   const ci=new Map(),cj=new Map();classes.first.forEach((ids,i)=>ids.forEach(id=>ci.set(id,i)));classes.second.forEach((ids,j)=>ids.forEach(id=>cj.set(id,j)));
   for(const [kk,v]of classes.values){const x=fu(v);if(!x)continue;const [i,j]=kk.split(':').map(Number);if(ref1[i]===undefined||ref2[j]===undefined)continue;set(key(ref1[i]),key(ref2[j]),x);classPairs++;}
