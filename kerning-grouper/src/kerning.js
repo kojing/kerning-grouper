@@ -116,3 +116,12 @@ export function mergeClasses(pre,{tolerance=0,locked={right:new Set(),left:new S
  pass('right');pass('left');pass('right');pass('left');
  const count=sd=>new Set(live[sd].map(g=>out[sd].get(g))).size;
  return{...out,values:val,tolerance,classes:{right:count('right'),left:count('left'),before:{right:live.right.length,left:live.left.length}}};}
+
+// The classes as written to the .vfm: groups merged by mergeClasses (if any), all-zero groups left out (their glyphs
+// kern nothing), members ordered by code point (the lead names the class). → {first: [[ids]], second: [[ids]],
+// values: Map("i:j" → class value)}. groups: {right, left} as used for the kerning; unicodeOf(id) → lowest code point.
+export function exportClasses(resolved,groups,unicodeOf=()=>0){const m=resolved.merge,rep=(sd,i)=>m?.[sd]?.get(i)??i,idx={right:new Map(),left:new Map()},lists={right:[],left:[]};
+ for(const sd of ['right','left'])groups[sd].forEach((ids,i)=>{if(resolved.zeroGroups[sd].has(i))return;const r=rep(sd,i);if(!idx[sd].has(r)){idx[sd].set(r,lists[sd].length);lists[sd].push([]);}lists[sd][idx[sd].get(r)].push(...ids);});
+ for(const sd of ['right','left'])for(const l of lists[sd])l.sort((a,b)=>(unicodeOf(a)??1e9)-(unicodeOf(b)??1e9)||a-b);
+ const values=new Map();for(const cl of resolved.classes){const i=idx.right.get(rep('right',cl.c1)),j=idx.left.get(rep('left',cl.c2));if(i===undefined||j===undefined)continue;values.set(i+':'+j,cl.value);}
+ return{first:lists.right,second:lists.left,values};}

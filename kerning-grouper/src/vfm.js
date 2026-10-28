@@ -28,17 +28,49 @@ export function glyphNamer(font,reference=null,master=null){const own=hasOwnName
   cache.set(id,nm);return nm;};
  return{name,stats};}
 
-// The .vfm text. pairs: [{a, b, value}] in 1000-UPM units (value 0 is skipped). With a reference VFM the
-// file is that VFM with this master's kerning replaced (metrics and other masters kept as they are).
-// targets: glyph ids the tool worked on. With a reference, its pairs that involve any other glyph (glyphs the tool
-// cannot target, e.g. alternates without a code point) are kept as they are; only pairs among targets are replaced.
-export function buildVfm({pairs,upm,name,master,reference=null,targets=null}){const out={};let count=0,keptOutside=0;
- if(reference&&targets){const T=new Set([...targets].map(name)),old=reference.data.masters?.[master]?.pairs||{};for(const [a,row]of Object.entries(old))for(const [b,val]of Object.entries(row||{})){if(T.has(a)&&T.has(b))continue;(out[a]||(out[a]={}))[b]=String(val);keptOutside++;}}
- for(const p of pairs){const fu=Math.round(p.value*upm/1000);if(!fu)continue;const a=name(p.a),b=name(p.b);(out[a]||(out[a]={}))[b]=String(fu);count++;}
+// The .vfm text. pairs: [{a, b, value}] final glyph-pair values in 1000-UPM units.
+// classes (optional): {first: [[ids]], second: [[ids]], values: Map("i:j" → class value, 1000 UPM)} — the export
+// classes. With classes the file is written the way FontLab 8 writes class kerning (seen in a FontLab export):
+//   masters.<M>.kerningClasses: [{"1st": true, "name", "names": [glyph names]}, {"2nd": true, …}, {"1st": true, "2nd": true, …}]
+//   masters.<M>.pairs: {"@first class" | glyph: {"@second class" | glyph: "value"}}
+// One-glyph classes are written as the glyph. A glyph pair whose value differs from its class pair (exceptions,
+// including 0) is written glyph to glyph, which FontLab applies over the class pair. A glyph set used on both sides
+// becomes one class with both flags. Without classes every non-zero glyph pair is written (classes flattened).
+// With a reference .vfm, that file is the base (metrics, other masters kept). Its kerning that involves any glyph
+// outside targets is kept: classes without target glyphs stay as they are with their pairs; pairs that need a class
+// containing a target glyph are written out glyph by glyph for the non-target glyphs (that class is replaced).
+export function buildVfm({pairs,upm,name,master,reference=null,targets=null,classes=null}){const out={},k=upm/1000,fu=v=>Math.round(v*k);let count=0,keptOutside=0,classPairs=0,exceptionPairs=0;
+ const T=new Set(targets?[...targets].map(name):pairs.flatMap(p=>[name(p.a),name(p.b)]));const set=(a,b,v)=>{(out[a]||(out[a]={}))[b]=String(v);};
+ let keptDefs=[],refDefsRaw=null;
+ if(reference&&targets){const v=reference.data,m=v.masters?.[master]||{},defs=classDefs(v,master),byName=new Map(defs.map(c=>[c.name,c])),raw=m.pairs||{};
+  const at=Object.entries(raw).some(([a,row])=>a.startsWith('@')||Object.keys(row||{}).some(b=>b.startsWith('@')));
+  const cls=nm=>at?(nm.startsWith('@')?byName.get(nm.slice(1)):undefined):(byName.has(nm)&&!T.has(nm)&&!(v.metrics||{})[nm]?byName.get(nm):undefined);
+  const dropped=new Set(defs.filter(c=>c.names.some(n=>T.has(n))).map(c=>c.name));refDefsRaw=Array.isArray(m.kerningClasses)?m.kerningClasses:null;
+  keptDefs=(refDefsRaw||[]).filter(c=>c&&!dropped.has(String(c.name)));
+  const touches=nm=>{const c=cls(nm);return c?dropped.has(c.name):T.has(nm);};const flat=new Map();
+  for(const [a,row]of Object.entries(raw))for(const [b,val]of Object.entries(row||{})){if(!touches(a)&&!touches(b)){set(a,b,val);keptOutside++;continue;}
+   const A=cls(a),B=cls(b),lvl=(A?0:1)+(B?0:1);for(const x of A?A.names:[a])for(const y of B?B.names:[b]){if(T.has(x)&&T.has(y))continue;const key=x+'\t'+y,o=flat.get(key);if(!o||lvl>=o.l)flat.set(key,{l:lvl,v:val});}}
+  for(const [key,{v}]of flat){const [x,y]=key.split('\t');set(x,y,v);keptOutside++;}}
+ let defsOut=null;
+ if(classes){const used=new Set(keptDefs.map(c=>String(c.name))),uniq=n=>{let x=n,i=2;while(used.has(x))x=n+'_'+i++;used.add(x);return x;};
+  const sig=ids=>ids.map(name).sort().join('\u0001'),bySig=new Map(),defs=[],ref1=[],ref2=[];
+  const def=(ids,side)=>{if(ids.length<2)return name(ids[0]);const s=sig(ids);let d=bySig.get(s);if(!d){d={name:null,names:ids.map(name),'1st':false,'2nd':false,lead:name(ids[0])};bySig.set(s,d);defs.push(d);}d[side]=true;return d;};
+  classes.first.forEach((ids,i)=>ref1[i]=def(ids,'1st'));classes.second.forEach((ids,j)=>ref2[j]=def(ids,'2nd'));
+  for(const d of defs)d.name=uniq(d['1st']&&d['2nd']?d.lead:d.lead+(d['1st']?'_1st':'_2nd'));
+  const key=r=>typeof r==='string'?r:'@'+r.name;
+  const ci=new Map(),cj=new Map();classes.first.forEach((ids,i)=>ids.forEach(id=>ci.set(id,i)));classes.second.forEach((ids,j)=>ids.forEach(id=>cj.set(id,j)));
+  for(const [kk,v]of classes.values){const x=fu(v);if(!x)continue;const [i,j]=kk.split(':').map(Number);if(ref1[i]===undefined||ref2[j]===undefined)continue;set(key(ref1[i]),key(ref2[j]),x);classPairs++;}
+  for(const p of pairs){const i=ci.get(p.a),j=cj.get(p.b),cv=i!==undefined&&j!==undefined?fu(classes.values.get(i+':'+j)||0):0,x=fu(p.value);if(x===cv)continue;
+   // a one-glyph class pair is already this glyph pair
+   const a=name(p.a),b=name(p.b);set(a,b,x);exceptionPairs++;}
+  defsOut=[...keptDefs,...defs.map(d=>{const o={};if(d['1st'])o['1st']=true;if(d['2nd'])o['2nd']=true;o.name=d.name;o.names=d.names;return o;})];count=classPairs+exceptionPairs;}
+ else for(const p of pairs){const x=fu(p.value);if(!x)continue;set(name(p.a),name(p.b),x);count++;}
  const sorted={};for(const a of Object.keys(out).sort(byCode)){const row={};for(const b of Object.keys(out[a]).sort(byCode))row[b]=out[a][b];sorted[a]=row;}
- let v;if(reference){v=JSON.parse(JSON.stringify(reference.data));v.masters[master]={...(v.masters[master]||{}),pairs:sorted};}
- else v={dataType:'com.fontlab.metrics',masters:{[master]:{pairs:sorted}},upm};
- return{text:JSON.stringify(v,null,4)+'\n',count,keptOutside,firsts:Object.keys(sorted).length};}
+ let v;if(reference){v=JSON.parse(JSON.stringify(reference.data));const m={...(v.masters[master]||{})};if(defsOut)m.kerningClasses=defsOut;else if(refDefsRaw)m.kerningClasses=keptDefs;m.pairs=sorted;
+  // keep FontLab's key order: kerningClasses before pairs
+  const o={};if(m.kerningClasses)o.kerningClasses=m.kerningClasses;for(const [kk,val]of Object.entries(m))if(kk!=='kerningClasses'&&kk!=='pairs')o[kk]=val;o.pairs=sorted;v.masters[master]=o;}
+ else v={dataType:'com.fontlab.metrics',masters:{[master]:defsOut?{kerningClasses:defsOut,pairs:sorted}:{pairs:sorted}},upm};
+ return{text:JSON.stringify(v,null,4)+'\n',count,keptOutside,classPairs,exceptionPairs,classCount:defsOut?defsOut.length-keptDefs.length:0,firsts:Object.keys(sorted).length};}
 const byCode=(x,y)=>x<y?-1:x>y?1:0;
 
 // ---- reading kerning and groups back from a .vfm ----
@@ -92,7 +124,7 @@ export function nameIndex(font,ref,master){const n=glyphNamer(font),idOf=new Map
 export function readVfm(ref,master,font){const v=ref.data,upm=v.upm||font.unitsPerEm,lookup=nameIndex(font,ref,master),k=1000/upm,unmapped=new Set();
  const vname=new Map(),id=nm=>{const i=lookup(nm);if(i===undefined)unmapped.add(nm);else if(!vname.has(i))vname.set(i,nm);return i;};
  const defs=classDefs(v,master),byName=new Map(defs.map(c=>[c.name,c]));
- const raw=v.masters?.[master]?.pairs||{},pairs=new Map(),ids=new Set();
+ const raw=v.masters?.[master]?.pairs||{},pairs=new Map(),level=new Map(),ids=new Set();
  // A class is referenced as "@name" when the file uses that convention; otherwise by a plain name that is a class and not a glyph.
  const atMode=Object.entries(raw).some(([a,row])=>a.startsWith('@')||Object.keys(row||{}).some(b=>b.startsWith('@')));
  const classOf=nm=>atMode?(nm.startsWith('@')?byName.get(nm.slice(1)):undefined):(byName.has(nm)&&lookup(nm)===undefined?byName.get(nm):undefined);
@@ -101,8 +133,8 @@ export function readVfm(ref,master,font){const v=ref.data,upm=v.upm||font.unitsP
  for(const [a,row]of Object.entries(raw)){if(!row||typeof row!=='object')continue;if(classOf(a))used.first.add(classOf(a).name);
   for(const [b,val]of Object.entries(row)){const x=Number(val);if(!Number.isFinite(x))continue;if(classOf(b))used.second.add(classOf(b).name);
    for(const an of expand(a))for(const bn of expand(b)){const ia=id(an),ib=id(bn);if(ia===undefined||ib===undefined)continue;const key=ia+':'+ib;
-    // glyph–glyph values override class values (written as exceptions)
-    const specific=!classOf(a)&&!classOf(b);if(!pairs.has(key)||specific)pairs.set(key,x*k);ids.add(ia);ids.add(ib);}}}
+    // glyph–glyph values override class–glyph ones, which override class–class (FontLab's exceptions)
+    const lvl=(classOf(a)?0:1)+(classOf(b)?0:1);if(!pairs.has(key)||lvl>=(level.get(key)??-1)){pairs.set(key,x*k);level.set(key,lvl);}ids.add(ia);ids.add(ib);}}}
  let groups,source;
  if(defs.length){source='classes';const side=s=>{const out=[],seen=new Set();for(const c of defs){const isSide=c[s]===null?used[s].has(c.name):c[s];if(!isSide)continue;const g=c.names.map(id).filter(i=>i!==undefined&&!seen.has(i));g.forEach(i=>seen.add(i));if(g.length)out.push(g);}return out;};groups={right:side('first'),left:side('second')};}
  else{source='inferred';const rows=new Map(),cols=new Map();for(const [key,val]of pairs){const [a,b]=key.split(':').map(Number);if(!val)continue;(rows.get(a)||rows.set(a,new Map()).get(a)).set(b,val);(cols.get(b)||cols.set(b,new Map()).get(b)).set(a,val);}

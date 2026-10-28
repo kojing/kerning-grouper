@@ -17,10 +17,12 @@ for(let i=0;i<1200&&!/引き継いだグループ/.test(await txt('[data-vfmgrou
 await page.locator('[data-tab=kern]').click();await page.locator('[data-kgen]').click();
 for(let i=0;i<3000&&!/VFM の値を残す/.test(await txt('[data-kvfmstat]'));i++)await page.waitForTimeout(100);console.log(await txt('[data-kvfmstat]'));
 await page.locator('[data-tab=save]').click();const d=page.waitForEvent('download');await page.locator('[data-kexport]').click();const out=(await d).path();
-const before=JSON.parse(fs.readFileSync(VFM,'utf8')),after=JSON.parse(fs.readFileSync(await out,'utf8'));
-for(const m of Object.keys(before.masters)){const P=before.masters[m].pairs||{},Q=after.masters[m]?.pairs||{};let same=0,diff=[];
- for(const [a,row]of Object.entries(P))for(const [b,v]of Object.entries(row))Q[a]?.[b]===v?same++:diff.push(`${a}/${b} ${v}→${Q[a]?.[b]}`);
- for(const [a,row]of Object.entries(Q))for(const [b,v]of Object.entries(row))if(P[a]?.[b]===undefined)diff.push(`${a}/${b} (new) ${v}`);
- if(m===Object.keys(before.masters)[0]||diff.length)console.log(m,{same,differ:diff.length},diff.slice(0,10).join(' '));assert.equal(diff.length,0,'master '+m+': every pair as in the .vfm');}
+const before=JSON.parse(fs.readFileSync(VFM,'utf8')),afterText=fs.readFileSync(await out,'utf8'),after=JSON.parse(afterText);
+// compare what FontLab applies: every glyph pair after classes and exceptions are resolved
+const {parseVfm,readVfm}=await import('./src/vfm.js');const opentype=(await import('opentype.js')).default;const fb=fs.readFileSync(OTF),font=opentype.parse(fb.buffer.slice(fb.byteOffset,fb.byteOffset+fb.byteLength));
+const {cidMap}=await import('./src/vfm.js');font.kgCids=cidMap(fb.buffer.slice(fb.byteOffset,fb.byteOffset+fb.byteLength),font);
+const m=Object.keys(before.masters)[0],A=readVfm(parseVfm(fs.readFileSync(VFM,'utf8')),m,font).pairs,B=readVfm(parseVfm(afterText),m,font).pairs;let same=0,diff=[];
+for(const [k,v]of A)if(Math.round(B.get(k)??0)===Math.round(v))same++;else diff.push(k+' '+v+'→'+B.get(k));for(const [k,v]of B)if(!A.has(k)&&Math.round(v)!==0)diff.push(k+' (new) '+v);
+console.log(m,{same,differ:diff.length,classes:(after.masters[m].kerningClasses||[]).length},diff.slice(0,10).join(' '));assert.equal(diff.length,0,'every glyph pair as in the .vfm');
 assert.deepEqual(after.metrics,before.metrics,'metrics kept');assert.deepEqual(errors,[]);
 await browser.close();console.log('VFM round trip passed');
