@@ -29,3 +29,8 @@ v0.5.0 の初期条件では174文字（ひらがな・カタカナ・約物、�
 ## FiraSans-Regular-subset.ttf（v0.5.6 追加）
 - Fira Sans Regular（SIL Open Font License 1.1、ライセンス全文は FiraSans-OFL.txt）から、ASCII・ラテン文字（U+00A0–024F）・ギリシャ文字（U+0370–03FF）・キリル文字（U+0400–04FF）・一般句読点・通貨記号・№ ™ ← ↑ → ↓ だけを残したもの（fontTools pyftsubset、レイアウト機能はすべて残す）。
 - 欧文・ギリシャ文字・記号を含む書体の確認用。アーティファクトのデモでは「サンプル：欧文・ギリシャ・記号」で、英大文字・英小文字・数字・ASCII記号・ギリシャ文字・その他の記号（275 字）を選んでグループ作成とカーニング生成まで進めます。
+
+## KGAllTest-Regular.ttf（v0.5.6 追加）
+- Noto Sans JP（SIL OFL 1.1、NotoSansJP-OFL.txt）を wght=400 で静的にし（fontTools instancer）、すべての Unicode の規則に当てはまる字を含むように一部の字だけ残したもの（pyftsubset、レイアウト機能はすべて残す）。内部名は KG All Test。
+- 内容：ASCII、Latin-1（U+00A0–00FF）、ギリシャ・キリル文字（Noto Sans JP にあるもの）、記号 108（ダッシュ・引用符・※・矢印・数学記号・罫線・図形など）、ひらがな・カタカナ（U+3041–30FF）、和文約物（U+3000–303F）、全角英数・記号（U+FF01–FF60）、漢字 8 字（日本語漢字永東京：対象外の確認用）。748 コードポイント・1,477 グリフ。
+- 全部の規則にチェックすると 720 字。

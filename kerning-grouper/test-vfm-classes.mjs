@@ -12,7 +12,7 @@ const r=await createEngine()({glyphs,upm:font.unitsPerEm,fontKey:'vc',params:{..
 const st={...kernDefaults,merge:10};const raw=await generateKerning({...r,settings:st});const pre=resolveKerning(raw,st);const m=mergeClasses(pre,{tolerance:10});const res=resolveKerning(raw,st,{},{},null,m);res.merge=m;
 const lo=id=>Math.min(...(font.glyphs.get(id).unicodes||[1e9]));const cl=exportClasses(res,r.groups,lo);assert.ok(cl.first.some(g=>g.length>1)&&cl.second.some(g=>g.length>1),'there are classes');
 const {classKind}=await import('./src/unicode-rules.js');const n=glyphNamer(font),out=buildVfm({pairs:res.pairs,upm:font.unitsPerEm,name:n.name,master:'Regular',targets:r.items.map(g=>g.id),classes:cl,className:kernDefaults.className,kindOf:ids=>classKind(ids.map(lo))}),v=JSON.parse(out.text);
-assert.ok(v.masters.Regular.kerningClasses.every(c=>/^(UC|lc|Punct|Mix)_[A-Za-z]+_(1st|2nd|both)$/.test(c.name)),'kind_lead_side: '+v.masters.Regular.kerningClasses.map(c=>c.name).join(' '));
+assert.ok(v.masters.Regular.kerningClasses.every(c=>/^(UC|lc|Punct|UC-lc|lc-Punct|UC-Punct|Let|Mix)_[A-Za-z]+_(1st|2nd|both)$/.test(c.name)),'kind_lead_side: '+v.masters.Regular.kerningClasses.map(c=>c.name).join(' '));
 // the shape FontLab writes
 const M=v.masters.Regular;assert.deepEqual(Object.keys(M),['kerningClasses','pairs']);assert.ok(M.kerningClasses.every(c=>typeof c.name==='string'&&Array.isArray(c.names)&&c.names.length>1&&(c['1st']===true||c['2nd']===true)));
 assert.ok(Object.keys(M.pairs).some(a=>a.startsWith('@'))&&Object.values(M.pairs).some(row=>Object.keys(row).some(b=>b.startsWith('@'))),'class pairs written as @name');

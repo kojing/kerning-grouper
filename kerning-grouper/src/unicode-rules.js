@@ -36,4 +36,8 @@ export function kindOf(u){if(u==null)return'';const fw=inRange(u,0xFF10,0xFF19)|
  if(latin(u)&&L(u))return Lu(u)?'UC':'lc';if(greek(u)&&L(u))return Lu(u)?'Grk':'grk';if(cyrillic(u)&&L(u))return Lu(u)?'Cyr':'cyr';if(u<128&&Nd(u))return'Fig';
  if(hiragana(u)||inRange(u,0x3040,0x309F))return'Hira';if(katakana(u)||inRange(u,0x30A0,0x30FF)||inRange(u,0x31F0,0x31FF)||inRange(u,0xFF66,0xFF9F))return'Kata';
  if(inRange(u,0x3000,0x303F)||(inRange(u,0xFF00,0xFFEF)&&(P(u)||S(u))))return'JPunct';if(u<128&&(P(u)||S(u)))return'Punct';if(P(u)||S(u))return'Sym';return'Other';}
-export function classKind(codepoints){const k=new Set(codepoints.map(kindOf).filter(Boolean));return k.size===1?[...k][0]:k.size?'Mix':'';}
+const KIND_ORDER=['UC','lc','Grk','grk','Cyr','cyr','Fig','Punct','Sym','Hira','Kata','JPunct','FW','Other'];
+// One kind → that kind; two → both joined (UC-lc); more → the family when they share one (Cap: capitals of any
+// script, Small, Let: letters, Kana, Mark: punctuation and symbols), else Mix.
+export function classKind(codepoints){const k=[...new Set(codepoints.map(kindOf).filter(Boolean))].sort((a,b)=>KIND_ORDER.indexOf(a)-KIND_ORDER.indexOf(b));if(!k.length)return'';if(k.length===1)return k[0];if(k.length===2)return k.join('-');
+ const all=s=>k.every(x=>s.includes(x));if(all(['UC','Grk','Cyr']))return'Cap';if(all(['lc','grk','cyr']))return'Small';if(all(['UC','lc','Grk','grk','Cyr','cyr']))return'Let';if(all(['Hira','Kata']))return'Kana';if(all(['Punct','Sym','JPunct']))return'Mark';return'Mix';}
