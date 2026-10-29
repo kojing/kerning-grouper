@@ -161,6 +161,13 @@ export function exportClasses(resolved,groups,unicodeOf=()=>0){const m=resolved.
  const values=new Map();for(const cl of resolved.classes){const i=idx.right.get(rep('right',cl.c1)),j=idx.left.get(rep('left',cl.c2));if(i===undefined||j===undefined)continue;values.set(i+':'+j,cl.value);}
  return{first:lists.right,second:lists.left,values};}
 
+// What FontLab compiles from the export: the classes, their values, and every glyph pair whose final value differs from
+// its class pair's value (written as a glyph-to-glyph pair, including 0). Input for estimateFontLab (core.js).
+export function compiledKerning(resolved,groups){const cl=exportClasses(resolved,groups),ci={first:new Map(),second:new Map()};
+ cl.first.forEach((l,i)=>l.forEach(g=>ci.first.set(g,i)));cl.second.forEach((l,i)=>l.forEach(g=>ci.second.set(g,i)));const exceptions=[];
+ for(const p of resolved.pairs){const i=ci.first.get(p.a),j=ci.second.get(p.b);const cv=i===undefined||j===undefined?0:(cl.values.get(i+':'+j)||0);if(p.value!==cv)exceptions.push({a:p.a,b:p.b,value:p.value});}
+ return{first:cl.first,second:cl.second,values:cl.values,exceptions};}
+
 // For mergeClasses: original class pairs that are 0 only because of the priority rule → their value without it.
 export function priorityFlex(raw,settings,pre,manualClasses={},manualPairs={},kept=null){const p=validateKernSettings(settings);if(!(p.priority>0))return null;
  const no=resolveKerning(raw,{...settings,priority:0},manualClasses,manualPairs,kept),nv=new Map(no.classes.map(c=>[c.key,c.value])),out=new Map();

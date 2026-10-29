@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {flatten,scanline,profile,compare,cluster,defaults,estimate} from './src/core.js';
+import {flatten,scanline,profile,compare,cluster,defaults,estimate,estimateFontLab} from './src/core.js';
 import {createEngine} from './src/engine.js';
 import {rulesOf} from './src/unicode-rules.js';
 import opentype from 'opentype.js';
@@ -18,3 +18,6 @@ const analyze=createEngine();const result=await analyze({glyphs,upm:font.unitsPe
 for(const [ch,want] of Object.entries(cases))assert.deepEqual(r(ch),want,'unicode rule for '+ch);}
 {const {classKind}=await import('./src/unicode-rules.js');const k=x=>classKind([...x].map(c=>c.codePointAt(0)));assert.equal(k('AB'),'UC');assert.equal(k('Ab'),'UC-lc');assert.equal(k('AΑЖ'),'Cap');assert.equal(k('AaΑα'),'Let');assert.equal(k('あア'),'Hira-Kata');assert.equal(k('A!あ'),'Mix');}
 console.log(JSON.stringify({tests:'passed',realFont:(process.env.TEST_FONT||'samples/KGJapaneseTest-Regular.ttf').split('/').pop(),glyphs:glyphs.length,left:result.groups.left.length,right:result.groups.right.length,estimate:estimate(result.items,result.groups)},null,2));
+// kern lookup size as FontLab (AFDKO) compiles it: Format 1 for glyph pairs, one Format 2 of the used classes, then Coverage/ClassDef
+{const f=estimateFontLab({first:[[10,11],[20]],second:[[30],[31,32]],values:new Map([['0:0',-50],['1:1',0]]),exceptions:[{a:10,b:31,value:-20}]});
+ assert.equal(f.format1,24);assert.equal(f.format2,42);assert.equal(f.total,58+24+42);assert.deepEqual(f.classes,[1,2]);console.log('FontLab size model ok');}

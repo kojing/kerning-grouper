@@ -53,6 +53,23 @@ export async function cluster(items,side,params,{signal=()=>false,progress=()=>{
   while(heap.length){const [s,a,b,va,vb]=pop();if(!groups.has(a)||!groups.has(b)||version[a]!==va||version[b]!==vb)continue;groups.get(a).push(...groups.get(b));groups.delete(b);if(locked.has(b)){locked.delete(b);locked.add(a);if(absorbing.delete(b))absorbing.add(a);}version[a]++;for(const c of groups.keys()){if(c===a||(locked.has(c)&&(locked.has(a)||!absorbing.has(c))))continue;const d=Math.max(matrix[a][c],matrix[b][c]);matrix[a][c]=matrix[c][a]=d;if(d<=1)push([d,Math.min(a,c),Math.max(a,c),version[Math.min(a,c)],version[Math.max(a,c)]]);}if(++counter%25===0){if(signal())throw Error('中止');progress(.65+.35*(1-groups.size/Math.max(n,1)));await tick();}}
   if(signal())throw Error('中止');return [...groups.values()].map(ids=>ids.map(i=>sorted[i].id).sort((a,b)=>a-b)).sort((a,b)=>b.length-a.length||a[0]-b[0]);
 }
+// The kern lookup as FontLab compiles it (FontLab uses the AFDKO feature compiler; checked against makeotf output):
+// one lookup, glyph pairs in a PairPos Format 1 subtable, class pairs in one Format 2 subtable, and the Coverage and
+// ClassDef tables after both. The first subtable's 16-bit offsets therefore reach across the whole lookup, so without
+// Extension lookups the lookup must stay within 65,535 bytes; splitting it into subtables or lookups does not lift that.
+//   first/second: export classes (arrays of glyph ids); values: Map 'i:j' → class value; exceptions: [{a,b}] glyph pairs.
+// Format 2 keeps only classes used by a nonzero class pair (second side adds class 0). byRegion: {regionOf(id)} also
+// returns the size with one Format 2 subtable per kerning region (no zero cross blocks), for comparison.
+export function estimateFontLab({first,second,values,exceptions},regionOf=null){
+ const cov=ids=>{const s=[...new Set(ids)].sort((a,b)=>a-b);let r=0;for(let i=0;i<s.length;i++)if(!i||s[i]!==s[i-1]+1)r++;return s.length?Math.min(4+2*s.length,4+6*r):0;};
+ const cd=m=>{const s=[...m].filter(([,c])=>c).sort((a,b)=>a[0]-b[0]);if(!s.length)return 6;let r=0;for(let i=0;i<s.length;i++)if(!i||s[i][0]!==s[i-1][0]+1||s[i][1]!==s[i-1][1])r++;return Math.min(6+2*(s[s.length-1][0]-s[0][0]+1),4+6*r);};
+ const f2=(keep)=>{const uf=new Set(),us=new Set();for(const [k,v]of values){if(!v)continue;const [i,j]=k.split(':').map(Number);if(!keep(i))continue;uf.add(i);us.add(j);}
+  if(!uf.size)return{bytes:0,matrix:0,c1:0,c2:0};const fl=[...uf],sl=[...us],m1=new Map(),m2=new Map();fl.forEach((i,n)=>first[i].forEach(g=>m1.set(g,n)));sl.forEach((j,n)=>second[j].forEach(g=>m2.set(g,n+1)));
+  const matrix=2*fl.length*(sl.length+1);return{bytes:16+matrix+cov([...m1.keys()])+cd(m1)+cd(m2),matrix,c1:fl.length,c2:sl.length+1};};
+ const firsts=new Set(exceptions.map(p=>p.a)),f1=exceptions.length?10+4*firsts.size+4*exceptions.length+cov([...firsts]):0;
+ const one=f2(()=>true),head=58,total=head+f1+one.bytes;const out={total,format1:f1,format2:one.bytes,matrix:one.matrix,classes:[one.c1,one.c2],pairs:exceptions.length,limit:65535};
+ if(regionOf){const regs=new Set(first.map(l=>regionOf(l[0])));let split=head+f1;for(const r of regs)split+=f2(i=>regionOf(first[i][0])===r).bytes+2;out.split=split;}
+ return out;}
 // zero: {right:Set,left:Set} of group indices whose every final pair value is 0. Such first-side groups leave the
 // Coverage table and second-side groups fold into class 0, so they cost no matrix rows/columns.
 export function estimate(glyphs,groups,zero=null){const zr=zero?.right||new Set(),zl=zero?.left||new Set();const keptR=groups.right.filter((_,i)=>!zr.has(i)),keptL=groups.left.filter((_,i)=>!zl.has(i));const c1=keptR.length+1,c2=keptL.length+1;const n1=zero?keptR.reduce((s,g)=>s+g.length,0):glyphs.length,n2=zero?keptL.reduce((s,g)=>s+g.length,0):glyphs.length;const matrix=2*c1*c2,overhead=16+(4+2*n1)+(4+6*n1)+(4+6*n2)+128;return{matrix,overhead,total:matrix+overhead,c1,c2,candidates:keptR.length*keptL.length,excluded:{right:zr.size,left:zl.size}};}

@@ -119,7 +119,7 @@
 
 ユーザーの予算は64 KiB = 65536 bytes。これはVFMのJSONファイル容量ではなく、OpenTypeカーニングの構造・16bitオフセット制約を意識した予算として扱う。フォント全体やGPOS全体に一律64KiB上限があると説明しない。
 
-現行の容量表示：単一PairPos Format 2、横組み、xAdvanceのみ、class0込みの密なクラス行列＋Coverage/ClassDef等の概算。生成後は個別例外の概算を加算する。実際のサブテーブル分割・レイアウト・FontLabの最適化は未検証。
+現行の容量表示（v0.5.7）：カーニング生成後は estimateFontLab（core.js）。FontLab＝AFDKO のコンパイラ（エラー文 "positioning rules cause an offset overflow ... to a lookup subtable" が同じ）。1 ルックアップに Format 1（グリフのペア、10+4×先頭グリフ数+4×ペア数+Coverage）と Format 2（16+2×使うクラスC1×(C2+1)+Coverage+ClassDef×2）、Coverage/ClassDef は後ろにまとめて置かれるので、Extension なしではルックアップ全体が 65,535 bytes 以内。サブテーブルやルックアップを分けても上限は変わらない（ユーザーの絶対条件：OTF に Extension を使わない）。makeotf 実測と 0.1% 以内。生成前は密な行列の目安（estimate）。
 
 重要：微小値を0にしても密なFormat 2行列のセル容量は減らない。非ゼロペアが減ったことだけで容量削減を保証しない。グループ削減、疎な表現、分割、例外数を考慮する。
 
