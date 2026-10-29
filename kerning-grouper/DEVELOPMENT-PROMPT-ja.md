@@ -274,3 +274,8 @@ UI検証：test-ui.mjs / test-kerning-ui.mjs。Playwrightと実行可能なChrom
 - 優先度：kg-trainer priority.py（glyph_cat、features＝value の 116＋カテゴリ one-hot 20＝136、LABEL_MIN 10）と build_priority_model.py。src/priority-model.js（150 本、link logistic）。kerning.js glyphCat / predictPriority、generateKerning は pair.priority（かな・漢字・全角を含む組は null）。特徴量は既定の欧文基準ペアから作った baseTargets（学習時と同じ条件）。resolveKerning：settings.priority（0–100、初期値 30）。書き出すクラスの組（合併後のバケット）ごとに優先度の平均が下限未満なら、そのバケットの ideal を 0（接触する組は安全値）にして lowPriority（merge-exception も作らない）。合併は優先度なしの値（priority:0 の resolveKerning）で mergeClasses し、合併クラスの値は元のクラス値の加重中央値（merge.values）。テスト：test-kerning（優先度）、kg-trainer tests/test_parity.py test_priority_matches_js。評価：eval/build_priority_ds.py → train_priority.py（LOFO）→ export_priority.py。
 - mergeClasses：1回に各側のクラスの 15% までを合併し、先頭側と後ろ側を交互に繰り返す（相手側が後で減ると1行の節約が小さくなるため、一度に合併すると見込みが過大になる。Fira サブセットで 49.4→45.9 KB）。（flex オプション・priorityFlex は試作の名残で、UI では使っていない。）
 - 優先度は割合：resolveKerning は書き出すクラスの組を優先度の平均で並べ、判定対象の字の組の settings.priority %（初期値 15）に達するまで残し、残りを 0。generateKerning：欧文の文字どうし（UU/UL/LU/LL）は基準ペア以外で band を使わない（settings.bandLetters で戻せる、優先度モデルがあるときだけ）。kg-trainer pipeline.pair_table も同じ。
+
+## v0.5.7 和文の優先度
+- settings.jaPriority（初期値 17）：かなの組の割合。kanaPriority（kerning.js）：同じ文字種（ひらがな同士・カタカナ同士）0.5〜1（詰めたい量が大きいほど高い）、ひらがな↔カタカナ 0、全角英数を含む −1（数えない・残さない）。約物の規則の組は対象外。resolveKerning でクラスを作る前に字の組ごとに決める（欧文の priority はクラスの組ごと、統合の後）。字詰めオンでは使わない。
+- 根拠：市販の明朝体の VFM の解析（学習には使わない）。学習した判定に置き換える場合は OFL の和文（Noto Sans JP など、かなどうしのカーニングあり）を使う。Python（kg-trainer）にはまだ移植していない。
+

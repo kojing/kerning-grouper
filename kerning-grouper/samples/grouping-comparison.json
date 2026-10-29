@@ -8,12 +8,12 @@
       "first": 174,
       "second": 172
     },
-    "classPairs": 14983,
-    "exceptions": 0,
+    "classPairs": 5998,
+    "exceptions": 2,
     "warnings": 7278,
-    "estimatedBytes": 63142,
+    "estimatedBytes": 63182,
     "modelRmsBefore": 218.02512935559736,
-    "modelRmsAfter": 170.65913892030395,
+    "modelRmsAfter": 196.7440581570216,
     "seconds": 2,
     "samples": [
       {
@@ -68,10 +68,10 @@
     "optionZeroSaturated": {
       "saturatedClasses": 7217,
       "zeroGroups": {
-        "first": 7,
-        "second": 5
+        "first": 10,
+        "second": 12
       },
-      "estimatedBytes": 58954
+      "estimatedBytes": 55570
     },
     "defaultNoAutoExceptions": {
       "exceptions": 0,
@@ -81,8 +81,8 @@
         "first": 0,
         "second": 0
       },
-      "modelRmsAfter": 170.7,
-      "modelRmsWithExceptions": 170.7,
+      "modelRmsAfter": 196.7,
+      "modelRmsWithExceptions": 196.7,
       "estimatedBytes": 63142
     }
   },
@@ -95,12 +95,12 @@
       "first": 162,
       "second": 147
     },
-    "classPairs": 12759,
-    "exceptions": 206,
+    "classPairs": 5323,
+    "exceptions": 962,
     "warnings": 7278,
-    "estimatedBytes": 52278,
+    "estimatedBytes": 55458,
     "modelRmsBefore": 218.0251293555973,
-    "modelRmsAfter": 170.70451460405133,
+    "modelRmsAfter": 196.7481454365158,
     "seconds": 2,
     "samples": [
       {
@@ -155,10 +155,10 @@
     "optionZeroSaturated": {
       "saturatedClasses": 6266,
       "zeroGroups": {
-        "first": 7,
-        "second": 5
+        "first": 10,
+        "second": 10
       },
-      "estimatedBytes": 47122
+      "estimatedBytes": 44668
     },
     "defaultNoAutoExceptions": {
       "exceptions": 0,
@@ -168,8 +168,8 @@
         "first": 0,
         "second": 0
       },
-      "modelRmsAfter": 170.7,
-      "modelRmsWithExceptions": 170.7,
+      "modelRmsAfter": 196.6,
+      "modelRmsWithExceptions": 196.7,
       "estimatedBytes": 50840
     }
   },
@@ -182,12 +182,12 @@
       "first": 134,
       "second": 123
     },
-    "classPairs": 9444,
-    "exceptions": 2381,
+    "classPairs": 4205,
+    "exceptions": 2379,
     "warnings": 7278,
-    "estimatedBytes": 46600,
+    "estimatedBytes": 46502,
     "modelRmsBefore": 218.02512935559741,
-    "modelRmsAfter": 170.7755703789728,
+    "modelRmsAfter": 196.76443494447156,
     "seconds": 2,
     "samples": [
       {
@@ -242,10 +242,10 @@
     "optionZeroSaturated": {
       "saturatedClasses": 4666,
       "zeroGroups": {
-        "first": 7,
-        "second": 5
+        "first": 10,
+        "second": 10
       },
-      "estimatedBytes": 32970
+      "estimatedBytes": 30934
     },
     "defaultNoAutoExceptions": {
       "exceptions": 0,
@@ -255,8 +255,8 @@
         "first": 0,
         "second": 0
       },
-      "modelRmsAfter": 171.3,
-      "modelRmsWithExceptions": 170.8,
+      "modelRmsAfter": 196.9,
+      "modelRmsWithExceptions": 196.8,
       "estimatedBytes": 36072
     }
   },
@@ -269,12 +269,12 @@
       "first": 87,
       "second": 83
     },
-    "classPairs": 4529,
-    "exceptions": 6811,
+    "classPairs": 1877,
+    "exceptions": 4582,
     "warnings": 7278,
-    "estimatedBytes": 45648,
+    "estimatedBytes": 36762,
     "modelRmsBefore": 218.02512935559793,
-    "modelRmsAfter": 170.8357827593239,
+    "modelRmsAfter": 196.78491562871022,
     "seconds": 2,
     "samples": [
       {
@@ -329,10 +329,10 @@
     "optionZeroSaturated": {
       "saturatedClasses": 1968,
       "zeroGroups": {
-        "first": 6,
-        "second": 4
+        "first": 8,
+        "second": 10
       },
-      "estimatedBytes": 15626
+      "estimatedBytes": 14246
     },
     "defaultNoAutoExceptions": {
       "exceptions": 0,
@@ -342,8 +342,8 @@
         "first": 0,
         "second": 0
       },
-      "modelRmsAfter": 172.9,
-      "modelRmsWithExceptions": 170.8,
+      "modelRmsAfter": 199.3,
+      "modelRmsWithExceptions": 196.8,
       "estimatedBytes": 17376
     }
   }

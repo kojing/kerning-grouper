@@ -6,12 +6,12 @@
     "first": 174,
     "second": 172
   },
-  "classPairs": 14983,
-  "exceptions": 0,
+  "classPairs": 5998,
+  "exceptions": 2,
   "warnings": 7278,
-  "estimatedBytes": 63142,
+  "estimatedBytes": 63182,
   "modelRmsBefore": 218.02512935559736,
-  "modelRmsAfter": 170.65913892030395,
+  "modelRmsAfter": 196.7440581570216,
   "seconds": 2,
   "samples": [
     {

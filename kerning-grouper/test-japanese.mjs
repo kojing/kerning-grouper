@@ -15,3 +15,11 @@ const e=estimate(result.items,result.groups);const exceptionBytes=4*out.exceptio
 const report={font:'Noto Sans JP / Regular 400 / renamed static subset',glyphs:glyphs.length,pairs:out.pairs.length,groups:{first:result.groups.right.length,second:result.groups.left.length},classPairs:out.nonzero,exceptions:out.exceptions.length,warnings:out.warnings,estimatedBytes:e.total+exceptionBytes,modelRmsBefore:opticalError(out.pairs,false),modelRmsAfter:opticalError(out.pairs,true),seconds:Math.round((performance.now()-start)/1000),samples};
 fs.writeFileSync('samples/validation.json',JSON.stringify(report,null,2));{const off=resolveKerning(raw,{...settings,exceptions:false});const eb=off.exceptions.length?4*off.exceptions.length+6*new Set(off.exceptions.map(p=>p.a)).size+26:0;const e2=estimate(result.items,result.groups);console.log('default (no automatic exceptions):',JSON.stringify({exceptions:off.exceptions.length,raisedClasses:off.raisedClasses,estimatedBytes:e2.matrix+e2.overhead+eb}));assert.ok(off.pairs.every(p=>p.protected||p.safe===null||p.value>=p.safe));}
 console.log(report);
+// kana priority: same-script kana pairs are judged (ranked by how much they tighten), hiragana↔katakana pairs get 0
+{const id=c=>font.charToGlyph(c).index,P=(x,y)=>raw.pairs.find(p=>p.a===id(x)&&p.b===id(y));
+ assert.ok(P('の','の').jprio>=0.5&&P('カ','カ').jprio>=0.5,'same script judged');assert.equal(P('の','カ').jprio,0,'across scripts: 0');
+ assert.ok(raw.pairs.filter(p=>p.rule).every(p=>p.jprio===undefined||p.jprio===null),'punctuation pairs keep their rules');
+ const off=resolveKerning(raw,{...settings,jaPriority:0}),on=resolveKerning(raw,settings);assert.ok(on.nonzeroGlyphPairs<off.nonzeroGlyphPairs,'the share drops kana pairs');
+ const kn=on.pairs.filter(p=>p.jprio!=null&&p.jprio>=0),kept=kn.filter(p=>!p.lowPriority).length;assert.ok(kept>=kn.length*.16&&kept<kn.length*.35,'about the share is kept: '+kept+'/'+kn.length);
+ assert.ok(on.pairs.filter(p=>p.jprio===0&&!p.lowPriority).length===0||on.pairs.filter(p=>p.jprio===0).every(p=>p.lowPriority||p.value===0||p.safe>0),'cross-script pairs are not kerned');
+ console.log('kana priority ok',{judged:kn.length,kept,nonzero:[off.nonzeroGlyphPairs,on.nonzeroGlyphPairs]});}
