@@ -6,13 +6,13 @@
     "first": 174,
     "second": 172
   },
-  "classPairs": 15020,
+  "classPairs": 14975,
   "exceptions": 0,
   "warnings": 7278,
   "estimatedBytes": 63142,
   "modelRmsBefore": 218.02512935559736,
-  "modelRmsAfter": 170.25091988891688,
-  "seconds": 4,
+  "modelRmsAfter": 170.7144699236937,
+  "seconds": 2,
   "samples": [
     {
       "text": "のの",
@@ -58,7 +58,7 @@
     },
     {
       "text": "。、",
-      "value": -100,
+      "value": 0,
       "safe": -702,
       "warning": "limited"
     }

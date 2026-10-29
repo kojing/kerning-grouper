@@ -8,13 +8,13 @@
       "first": 174,
       "second": 172
     },
-    "classPairs": 15020,
+    "classPairs": 14975,
     "exceptions": 0,
     "warnings": 7278,
     "estimatedBytes": 63142,
     "modelRmsBefore": 218.02512935559736,
-    "modelRmsAfter": 170.25091988891688,
-    "seconds": 4,
+    "modelRmsAfter": 170.7144699236937,
+    "seconds": 2,
     "samples": [
       {
         "text": "のの",
@@ -60,7 +60,7 @@
       },
       {
         "text": "。、",
-        "value": -100,
+        "value": 0,
         "safe": -702,
         "warning": "limited"
       }
@@ -68,10 +68,10 @@
     "optionZeroSaturated": {
       "saturatedClasses": 7217,
       "zeroGroups": {
-        "first": 6,
+        "first": 7,
         "second": 5
       },
-      "estimatedBytes": 59298
+      "estimatedBytes": 58954
     },
     "defaultNoAutoExceptions": {
       "exceptions": 0,
@@ -81,8 +81,8 @@
         "first": 0,
         "second": 0
       },
-      "modelRmsAfter": 170.3,
-      "modelRmsWithExceptions": 170.3,
+      "modelRmsAfter": 170.7,
+      "modelRmsWithExceptions": 170.7,
       "estimatedBytes": 63142
     }
   },
@@ -95,13 +95,13 @@
       "first": 162,
       "second": 147
     },
-    "classPairs": 12796,
+    "classPairs": 12751,
     "exceptions": 206,
     "warnings": 7278,
     "estimatedBytes": 52278,
     "modelRmsBefore": 218.0251293555973,
-    "modelRmsAfter": 170.29640434315564,
-    "seconds": 4,
+    "modelRmsAfter": 170.75983090443987,
+    "seconds": 2,
     "samples": [
       {
         "text": "のの",
@@ -147,7 +147,7 @@
       },
       {
         "text": "。、",
-        "value": -100,
+        "value": 0,
         "safe": -702,
         "warning": "limited"
       }
@@ -155,10 +155,10 @@
     "optionZeroSaturated": {
       "saturatedClasses": 6266,
       "zeroGroups": {
-        "first": 6,
+        "first": 7,
         "second": 5
       },
-      "estimatedBytes": 47416
+      "estimatedBytes": 47122
     },
     "defaultNoAutoExceptions": {
       "exceptions": 0,
@@ -168,8 +168,8 @@
         "first": 0,
         "second": 0
       },
-      "modelRmsAfter": 170.3,
-      "modelRmsWithExceptions": 170.3,
+      "modelRmsAfter": 170.8,
+      "modelRmsWithExceptions": 170.8,
       "estimatedBytes": 50840
     }
   },
@@ -182,13 +182,13 @@
       "first": 134,
       "second": 123
     },
-    "classPairs": 9478,
-    "exceptions": 2375,
+    "classPairs": 9438,
+    "exceptions": 2385,
     "warnings": 7278,
-    "estimatedBytes": 46576,
+    "estimatedBytes": 46616,
     "modelRmsBefore": 218.02512935559741,
-    "modelRmsAfter": 170.3676303300198,
-    "seconds": 4,
+    "modelRmsAfter": 170.83088368930348,
+    "seconds": 2,
     "samples": [
       {
         "text": "のの",
@@ -234,7 +234,7 @@
       },
       {
         "text": "。、",
-        "value": -100,
+        "value": 0,
         "safe": -702,
         "warning": "limited"
       }
@@ -242,10 +242,10 @@
     "optionZeroSaturated": {
       "saturatedClasses": 4666,
       "zeroGroups": {
-        "first": 6,
+        "first": 7,
         "second": 5
       },
-      "estimatedBytes": 33216
+      "estimatedBytes": 32970
     },
     "defaultNoAutoExceptions": {
       "exceptions": 0,
@@ -255,8 +255,8 @@
         "first": 0,
         "second": 0
       },
-      "modelRmsAfter": 170.8,
-      "modelRmsWithExceptions": 170.4,
+      "modelRmsAfter": 171.3,
+      "modelRmsWithExceptions": 170.8,
       "estimatedBytes": 36072
     }
   },
@@ -269,13 +269,13 @@
       "first": 87,
       "second": 83
     },
-    "classPairs": 4545,
-    "exceptions": 6801,
+    "classPairs": 4529,
+    "exceptions": 6815,
     "warnings": 7278,
-    "estimatedBytes": 45596,
+    "estimatedBytes": 45682,
     "modelRmsBefore": 218.02512935559793,
-    "modelRmsAfter": 170.42617958426547,
-    "seconds": 4,
+    "modelRmsAfter": 170.8910565690874,
+    "seconds": 2,
     "samples": [
       {
         "text": "のの",
@@ -321,7 +321,7 @@
       },
       {
         "text": "。、",
-        "value": -100,
+        "value": 0,
         "safe": -702,
         "warning": "limited"
       }
@@ -329,10 +329,10 @@
     "optionZeroSaturated": {
       "saturatedClasses": 1968,
       "zeroGroups": {
-        "first": 5,
+        "first": 6,
         "second": 4
       },
-      "estimatedBytes": 15794
+      "estimatedBytes": 15626
     },
     "defaultNoAutoExceptions": {
       "exceptions": 0,
@@ -342,8 +342,8 @@
         "first": 0,
         "second": 0
       },
-      "modelRmsAfter": 172.6,
-      "modelRmsWithExceptions": 170.4,
+      "modelRmsAfter": 172.9,
+      "modelRmsWithExceptions": 170.9,
       "estimatedBytes": 17376
     }
   }

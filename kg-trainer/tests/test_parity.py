@@ -3,7 +3,7 @@ import json, os, subprocess, sys, unittest
 HERE = os.path.dirname(__file__)
 sys.path.insert(0, os.path.join(HERE, '..'))
 from kg_trainer.fontio import FontData
-from kg_trainer import pipeline, core, valuemodel as vm
+from kg_trainer import pipeline, core, valuemodel as vm, priority as pr
 from kg_trainer.build_value_model import font_metrics
 JS = os.environ.get('KG_JS_ROOT', os.path.abspath(os.path.join(HERE, '..', '..', 'kerning-grouper')))
 FONT = os.path.join(JS, 'samples', 'KGJapaneseTest-Regular.ttf')
@@ -28,6 +28,32 @@ class Parity(unittest.TestCase):
     @unittest.skipUnless(os.path.exists(os.environ.get('KG_PARITY_FONT', '')), 'set KG_PARITY_FONT to a Latin font to also check a real font')
     def test_learned_values_on_a_real_font(self):
         self.check({}, font=os.environ['KG_PARITY_FONT'], chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', refs=core.KERN_DEFAULTS['references'])
+
+    def test_priority_matches_js(self):
+        """Priority (probability that a designer kerns the pair) for letters, digits and punctuation; kana: not judged."""
+        refs = core.KERN_DEFAULTS['references']
+        chars = 'HOnoAVTWaey1.,-"()?/+のカ'
+        js = json.loads(subprocess.run(['node', os.path.join(HERE, 'parity_js.mjs'), JS, FONT, chars, refs, '{}'], capture_output=True, text=True, check=True).stdout)
+        txt = open(os.path.join(JS, 'src', 'priority-model.js'), encoding='utf-8').read()
+        model = json.loads(txt[txt.index('export default ') + 15:].rstrip().rstrip(';'))
+        fd = FontData(FONT)
+        items, _ = pipeline.build_items(fd, chars)
+        prepared, ys = core.prepare(items, core.KERN_DEFAULTS['minimum'])
+        targets, _, _ = core.targets_from_references(prepared, refs, 0)
+        met = font_metrics(fd)
+        idx = vm.zone_index(ys, met['cap'])
+        judged = 0
+        for p in js['pairs']:
+            a, b = prepared[p['a']], prepared[p['b']]
+            ca, cb = pr.glyph_cat(a['unicodes']), pr.glyph_cat(b['unicodes'])
+            if 'X' in (ca, cb):
+                self.assertIsNone(p['priority'], (p['a'], p['b']))
+                continue
+            f = core.pair_features(a, b, targets)
+            want = pr.probability(model, pr.features(a, b, f, idx, met))
+            self.assertAlmostEqual(want, p['priority'], delta=6e-4, msg=(chr(a['unicodes'][0]), chr(b['unicodes'][0])))
+            judged += 1
+        self.assertGreater(judged, 100)
 
     def check(self, extra, font=FONT, chars=CHARS, refs=REFS):
         out = subprocess.run(['node', os.path.join(HERE, 'parity_js.mjs'), JS, font, chars, refs, json.dumps(extra)], capture_output=True, text=True, check=True).stdout

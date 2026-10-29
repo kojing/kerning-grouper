@@ -94,3 +94,6 @@ python -m unittest discover -s tests -p "test_*.py"
 - `test_model.py`：既知の関係を学習で取り戻せるか
 - `test_multifont.py`：複数フォントの1つ抜き・重みの均等化・フォントごとの精度・書体数と精度
 - `test_gui.py`：ブラウザ画面の一連の操作（playwright）
+
+## 優先度モデル（v0.5.6）
+`python -m kg_trainer.build_priority_model FONT... -o ../kerning-grouper/src/priority-model.js --eval` で、「プロがこの組にカーニングを入れるか」を学習したモデルを作ります（ASCII と主な引用符・ダッシュ、値 10 以上を「入れる」）。特徴量は値のモデルの 116 個と、両方の字の種類（大文字・小文字・数字・引用符・句読点・ダッシュ・かっこ・スラッシュ・その他の記号・それ以外）。Web ツールと 1:1 で同じ値になることを tests/test_parity.py で確認します。ライセンスが許す書体（OFL・自社）だけを使ってください。

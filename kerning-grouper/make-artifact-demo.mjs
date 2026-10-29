@@ -31,7 +31,7 @@ body{font:13px/1.6 system-ui,-apple-system,"Hiragino Sans","Yu Gothic UI","Noto 
   function wait(test,ms){return new Promise(function(res,rej){var t0=Date.now();(function tick(){var v=test();if(v)return res(v);if(Date.now()-t0>(ms||20000))return rej(new Error('timeout'));setTimeout(tick,80);})();});}
   // sample: {b64, file, rules, strength, tsume, text}
   var SAMPLES={kana:{b64:FONT_B64,file:'KGJapaneseTest-Regular.ttf',rules:['hira','kata','jpunct'],strength:40,tsume:true,text:'「ひらがな」と、カタカナ。ゲームのセリフ'},
-   latin:{b64:FONT2_B64,file:'FiraSans-Regular-subset.ttf',rules:['upper','lower','digit','punct','greek','symbols'],strength:0,tsume:false,text:'AVATAR To WA ΑΥΤΟΣ Τα «Γειά σου» “Quote” – 2026'},
+   latin:{b64:FONT2_B64,file:'FiraSans-Regular-subset.ttf',rules:['upper','lower','digit','punct','asciisym','greek','gpunct','currency','math','othersym'],strength:0,tsume:false,text:'AVATAR To WA ΑΥΤΟΣ Τα «Γειά σου» “Quote” – 2026'},
    all:{b64:FONT3_B64,file:'KGAllTest-Regular.ttf',rules:'all',strength:0,tsume:false,text:'AVATAR Τα «Γειά» Жук 「ひらがな」とカタカナ。ＡＢＣ１２３ → ※'}};
   async function runSample(key){var S=SAMPLES[key||'kana'];
     var bin=atob(S.b64),u=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);
