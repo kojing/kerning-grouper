@@ -8,12 +8,12 @@
       "first": 174,
       "second": 172
     },
-    "classPairs": 14975,
+    "classPairs": 14983,
     "exceptions": 0,
     "warnings": 7278,
     "estimatedBytes": 63142,
     "modelRmsBefore": 218.02512935559736,
-    "modelRmsAfter": 170.7144699236937,
+    "modelRmsAfter": 170.65913892030395,
     "seconds": 2,
     "samples": [
       {
@@ -95,12 +95,12 @@
       "first": 162,
       "second": 147
     },
-    "classPairs": 12751,
+    "classPairs": 12759,
     "exceptions": 206,
     "warnings": 7278,
     "estimatedBytes": 52278,
     "modelRmsBefore": 218.0251293555973,
-    "modelRmsAfter": 170.75983090443987,
+    "modelRmsAfter": 170.70451460405133,
     "seconds": 2,
     "samples": [
       {
@@ -168,8 +168,8 @@
         "first": 0,
         "second": 0
       },
-      "modelRmsAfter": 170.8,
-      "modelRmsWithExceptions": 170.8,
+      "modelRmsAfter": 170.7,
+      "modelRmsWithExceptions": 170.7,
       "estimatedBytes": 50840
     }
   },
@@ -182,12 +182,12 @@
       "first": 134,
       "second": 123
     },
-    "classPairs": 9438,
-    "exceptions": 2385,
+    "classPairs": 9444,
+    "exceptions": 2381,
     "warnings": 7278,
-    "estimatedBytes": 46616,
+    "estimatedBytes": 46600,
     "modelRmsBefore": 218.02512935559741,
-    "modelRmsAfter": 170.83088368930348,
+    "modelRmsAfter": 170.7755703789728,
     "seconds": 2,
     "samples": [
       {
@@ -270,11 +270,11 @@
       "second": 83
     },
     "classPairs": 4529,
-    "exceptions": 6815,
+    "exceptions": 6811,
     "warnings": 7278,
-    "estimatedBytes": 45682,
+    "estimatedBytes": 45648,
     "modelRmsBefore": 218.02512935559793,
-    "modelRmsAfter": 170.8910565690874,
+    "modelRmsAfter": 170.8357827593239,
     "seconds": 2,
     "samples": [
       {
@@ -343,7 +343,7 @@
         "second": 0
       },
       "modelRmsAfter": 172.9,
-      "modelRmsWithExceptions": 170.9,
+      "modelRmsWithExceptions": 170.8,
       "estimatedBytes": 17376
     }
   }

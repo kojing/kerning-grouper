@@ -17,7 +17,7 @@ assert.ok(v.masters.Regular.kerningClasses.every(c=>/^(UC|lc|Punct|UC-lc|lc-Punc
 const M=v.masters.Regular;assert.deepEqual(Object.keys(M),['kerningClasses','pairs']);assert.ok(M.kerningClasses.every(c=>typeof c.name==='string'&&Array.isArray(c.names)&&c.names.length>1&&(c['1st']===true||c['2nd']===true)));
 assert.ok(Object.keys(M.pairs).some(a=>a.startsWith('@'))&&Object.values(M.pairs).some(row=>Object.keys(row).some(b=>b.startsWith('@'))),'class pairs written as @name');
 assert.equal(new Set(M.kerningClasses.map(c=>c.name)).size,M.kerningClasses.length,'class names are unique');
-assert.ok(M.kerningClasses.some(c=>c.names[0]==='A'||c.names[0]==='H'||c.names[0]==='O'),'a class is led by its base letter');
+assert.ok(M.kerningClasses.some(c=>/^[A-Za-z]$/.test(c.names[0])),'a class is led by a plain letter (lowest code point first)');
 // class names follow the template
 {const t=JSON.parse(buildVfm({pairs:res.pairs,upm:font.unitsPerEm,name:n.name,master:'Regular',targets:r.items.map(g=>g.id),classes:cl,className:'KG {side} {n}'}).text).masters.Regular.kerningClasses;
  assert.ok(t.every(c=>/^KG_(1st|2nd|both)_\d+$/.test(c.name)),'template used, spaces → _: '+t.map(c=>c.name).join(' '));assert.equal(new Set(t.map(c=>c.name)).size,t.length);}
