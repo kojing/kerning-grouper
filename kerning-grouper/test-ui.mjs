@@ -29,6 +29,8 @@ await page.locator('[data-category=upper]').uncheck();await settle();
 assert.equal(await count(),36,'26 lower + 10 digits');
 await page.locator('[data-category=upper]').check();await page.locator('[data-selecttext]').fill('Z漢');await settle();
 assert.equal(await count(),61);assert.match(await page.locator('[data-textinfo]').textContent(),/未収録：漢/);
+// exclusion template: fullwidth digits are appended once
+await page.locator('[data-extpl="0"]').click();await page.locator('[data-extpl="0"]').click();assert.equal(await page.locator('[data-selecttext]').inputValue(),'Z漢 ０１２３４５６７８９');await page.locator('[data-selecttext]').fill('Z漢');await settle();assert.equal(await count(),61);
 await page.locator('[data-category=hira]').check();await settle();assert.equal(await count(),141,'Unicode rule adds all hiragana in the font');await page.locator('[data-category=hira]').uncheck();await settle();
 assert.equal(await page.locator('[data-search]').count(),0,'individual glyph selection removed');assert.equal(await page.locator('details').count(),0,'no collapsible sections');
 await page.locator('[data-selectclear]').click();await settle();assert.equal(await count(),62,'clearing the exclusion restores the ranges');
