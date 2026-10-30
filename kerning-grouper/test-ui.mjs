@@ -38,6 +38,8 @@ await settle();await page.waitForFunction(()=>document.querySelector('[data-kern
 await page.locator('[data-tab=group]').click();await page.locator('[data-run]').click();await page.waitForFunction(()=>document.querySelector('[data-kerning-grouper]').shadowRoot.querySelector('.status').textContent.includes('分類完了'));
 assert.match(await page.locator('.status').textContent(),/62グリフ/);
 const first=+await page.locator('[data-nright]').textContent();
+// presets: the grouping sliders show only for カスタム
+await page.locator('[data-tab=group]').click();assert.equal(await page.locator('[data-gpreset=fine]').getAttribute('aria-pressed'),'true','default preset');assert.equal(await page.locator('[data-gadv]').isVisible(),false,'sliders hidden for a preset');await page.locator('[data-gpreset=custom]').click();assert.equal(await page.locator('[data-gadv]').isVisible(),true,'カスタム shows the sliders');
 await page.locator('[data-number=shape]').fill('30');await page.locator('[data-number=bearing]').fill('35');await page.locator('[data-number=local]').fill('75');
 await page.waitForFunction(()=>document.querySelector('[data-kerning-grouper]').shadowRoot.querySelector('.status').textContent.includes('分類完了')&&document.querySelector('[data-kerning-grouper]').shadowRoot.querySelector('.app').dataset.state==='ready');
 assert.ok(+await page.locator('[data-nright]').textContent()<=first);

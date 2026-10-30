@@ -279,3 +279,8 @@ UI検証：test-ui.mjs / test-kerning-ui.mjs。Playwrightと実行可能なChrom
 - settings.jaPriority（初期値 17）：かなの組の割合。kanaPriority（kerning.js）：同じ文字種（ひらがな同士・カタカナ同士）0.5〜1（詰めたい量が大きいほど高い）、ひらがな↔カタカナ 0、全角英数を含む −1（数えない・残さない）。約物の規則の組は対象外。resolveKerning でクラスを作る前に字の組ごとに決める（欧文の priority はクラスの組ごと、統合の後）。字詰めオンでは使わない。
 - 根拠：市販の明朝体の VFM の解析（学習には使わない）。学習した判定に置き換える場合は OFL の和文（Noto Sans JP など、かなどうしのカーニングあり）を使う。Python（kg-trainer）にはまだ移植していない。
 
+## v0.5.8 画面の簡略化（ユーザー指定）
+- テキストの簡略化：data-* のない静的な説明（small・.help）は app.js の起動時に class desc を付け、「説明を表示」（localStorage kerning-grouper:help）がオフなら隠す。動的な長い説明（data-kautonote など）は desc を直接付ける。
+- 詳細なスライダーはプリセット化（GROUP_PRESETS in app.js、KERN_PRESETS/presetOf in kerning-ui.js）。スライダーは「カスタム」のときだけ表示。折りたたみ（details）は使わない方針を維持。
+- 容量：生成前は estimate（密な行列）を「生成前の目安」、生成後は estimateFontLab を「最適化後」として、縮小率と一緒に表示。超過時は kerningUI.applyPreset('capacity') のボタン。
+

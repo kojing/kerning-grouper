@@ -16,7 +16,7 @@ body{font:13px/1.6 system-ui,-apple-system,"Hiragino Sans","Yu Gothic UI","Noto 
 .demo b{color:var(--fg);font-weight:600}
 </style>
 <div class="wrap">
-<div class="demo"><button id="loadSample" type="button">サンプル：かな</button>${b64b?'<button id="loadSample2" type="button">サンプル：欧文・ギリシャ・記号</button>':''}${b64c?'<button id="loadSample3" type="button">サンプル：全分類</button>':''}<span class="note"><b>デモ</b> 「かな」は同梱の KG Japanese Test（Noto Sans JP 由来・OFL）で、かな・約物174文字をグループ化します。${b64b?'「欧文・ギリシャ・記号」は Fira Sans（OFL、一部の文字に絞ったもの）で、英数字・ASCII記号・ギリシャ文字・その他の記号 275 文字をグループ化します。':''}${b64c?'「全分類」は KG All Test（Noto Sans JP 由来・OFL）で、Unicode の規則をすべてチェックして 720 文字を処理します（カーニング生成に数分かかります）。':''}どちらもグループ作成とカーニング生成まで自動で進めます。手元のOTF/TTFも下から読み込めます。保存ボタンは確認画面を経てダウンロードします。</span></div>
+<div class="demo"><button id="loadSample" type="button">サンプル：かな</button>${b64b?'<button id="loadSample2" type="button">サンプル：欧文・ギリシャ・記号</button>':''}${b64c?'<button id="loadSample3" type="button">サンプル：全分類</button>':''}<span class="note"><b>デモ</b> ボタンでサンプルフォント（OFL）を開き、グループ作成からカーニング生成まで自動で進めます${b64c?"（全分類は数分かかります）":""}。手元の OTF / TTF も下から開けます。</span></div>
 <main data-kg-artifact></main>
 </div>
 <script>${app}</script>
