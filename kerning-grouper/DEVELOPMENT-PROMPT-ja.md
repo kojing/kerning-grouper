@@ -286,3 +286,5 @@ UI検証：test-ui.mjs / test-kerning-ui.mjs。Playwrightと実行可能なChrom
 - 約物の設定（data-kpunct・data-ktcontrols2）はプリセット・カスタムと関係なく常に表示する（ユーザー指定）。字詰めはカスタムの中。
 - 「カーニングの調整」（limit・minimum・spacing、controls の 7 番目が 'a'）は常に表示（ユーザー指定）。生成済みで再生成が必要な設定を変えたら regenTimer で自動生成（invalidate しない）。
 - spacing は band と打ち消し合っていた：band で判定する組の desired に p.spacing を足す（core.banded_value も）。parametersChanged の約物の空き判定は /^keep(Period|Comma|Bracket|Middle)$/（keepSpacing を巻き込まない）。
+- v0.5.9（ユーザー指定）：文字間隔＝カーニング後のサイドベアリング調整（settings.tracking・trackAll、共通パラメータ）。左右に半分ずつ（左は Math.trunc(t/2)）。生成し直さず、プレビュー（layoutLines）と VFM の metrics.<glyph>.layers.<master> に反映（buildVfm の metrics）。spacing（基準からの間隔調整）は UI から外し常に 0。minimum は「接触を防ぐ余白」としてカスタムへ。
+

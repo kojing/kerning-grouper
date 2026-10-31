@@ -42,7 +42,8 @@ export function glyphNamer(font,reference=null,master=null){const own=hasOwnName
 // className: template for class names — {kind} what the class holds (kindOf(ids): UC, lc, Grk, Fig, Hira, Kata,
 // JPunct, Sym, Mix…), {lead} its first glyph's name, {side} 1st (pair first: the glyphs' right side) / 2nd (pair
 // second: their left side) / both, {n} running number, {count} glyph count. Spaces become _, names are made unique.
-export function buildVfm({pairs,upm,name,master,reference=null,targets=null,classes=null,className='{kind}_{lead}_{side}',kindOf=()=>''}){const out={},k=upm/1000,fu=v=>Math.round(v*k);let count=0,keptOutside=0,classPairs=0,exceptionPairs=0;
+// metrics: per-glyph metrics written into metrics.<glyph>.layers.<master> (FontLab: File > Import > Metrics).
+export function buildVfm({pairs,upm,name,master,reference=null,targets=null,classes=null,className='{kind}_{lead}_{side}',kindOf=()=>'',metrics=null}){const out={},k=upm/1000,fu=v=>Math.round(v*k);let count=0,keptOutside=0,classPairs=0,exceptionPairs=0;
  const T=new Set(targets?[...targets].map(name):pairs.flatMap(p=>[name(p.a),name(p.b)]));const set=(a,b,v)=>{(out[a]||(out[a]={}))[b]=String(v);};
  let keptDefs=[],refDefsRaw=null;
  if(reference&&targets){const v=reference.data,m=v.masters?.[master]||{},defs=classDefs(v,master),byName=new Map(defs.map(c=>[c.name,c])),raw=m.pairs||{};
@@ -73,7 +74,9 @@ export function buildVfm({pairs,upm,name,master,reference=null,targets=null,clas
   // keep FontLab's key order: kerningClasses before pairs
   const o={};if(m.kerningClasses)o.kerningClasses=m.kerningClasses;for(const [kk,val]of Object.entries(m))if(kk!=='kerningClasses'&&kk!=='pairs')o[kk]=val;o.pairs=sorted;v.masters[master]=o;}
  else v={dataType:'com.fontlab.metrics',masters:{[master]:defsOut?{kerningClasses:defsOut,pairs:sorted}:{pairs:sorted}},upm};
- return{text:JSON.stringify(v,null,4)+'\n',count,keptOutside,classPairs,exceptionPairs,classCount:defsOut?defsOut.length-keptDefs.length:0,firsts:Object.keys(sorted).length};}
+ // metrics: {glyph name: {lsb, rsb, width, xmin, xmax, ymin, ymax}} for this master (文字間隔: sidebearings changed after kerning)
+ let metricCount=0;if(metrics){const M=v.metrics||(v.metrics={});for(const [nm,val]of Object.entries(metrics)){const g=M[nm]||(M[nm]={});const L=g.layers||(g.layers={});L[master]=val;metricCount++;}}
+ return{metricCount,text:JSON.stringify(v,null,4)+'\n',count,keptOutside,classPairs,exceptionPairs,classCount:defsOut?defsOut.length-keptDefs.length:0,firsts:Object.keys(sorted).length};}
 const byCode=(x,y)=>x<y?-1:x>y?1:0;
 
 // ---- reading kerning and groups back from a .vfm ----
