@@ -283,4 +283,4 @@ UI検証：test-ui.mjs / test-kerning-ui.mjs。Playwrightと実行可能なChrom
 - テキストの簡略化：data-* のない静的な説明（small・.help）は app.js の起動時に class desc を付け、「説明を表示」（localStorage kerning-grouper:help）がオフなら隠す。動的な長い説明（data-kautonote など）は desc を直接付ける。
 - 詳細なスライダーはプリセット化（GROUP_PRESETS in app.js、KERN_PRESETS/presetOf in kerning-ui.js）。スライダーは「カスタム」のときだけ表示。折りたたみ（details）は使わない方針を維持。
 - 容量：生成前は estimate（密な行列）を「生成前の目安」、生成後は estimateFontLab を「最適化後」として、縮小率と一緒に表示。超過時は kerningUI.applyPreset('capacity') のボタン。
-
+- 約物の設定（data-kpunct・data-ktcontrols2）はプリセット・カスタムと関係なく常に表示する（ユーザー指定）。字詰めはカスタムの中。
