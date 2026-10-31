@@ -405,8 +405,11 @@ def ideal_value(f, settings, digits=False):
 def banded_value(f, settings):
     """Blend toward the target, then keep pairs inside the reference band at 0 (before limit and safety)."""
     wanted = blend_value(f['optical'], f['mechanical'], f['has_optical'], settings)
-    lo, hi = reference_band(f.get('refs') or [], settings)
-    return wanted - lo if wanted < lo else wanted - hi if wanted > hi else 0.0
+    refs = f.get('refs') or []
+    lo, hi = reference_band(refs, settings)
+    # the band moves with the target, so 基準からの間隔調整 (spacing) is added back for pairs judged against it
+    shift = settings.get('spacing', 0) if settings.get('keepSpacing', True) and refs else 0
+    return (wanted - lo if wanted < lo else wanted - hi if wanted > hi else 0.0) + shift
 
 
 def round_js(x):

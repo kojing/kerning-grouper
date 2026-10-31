@@ -284,3 +284,5 @@ UI検証：test-ui.mjs / test-kerning-ui.mjs。Playwrightと実行可能なChrom
 - 詳細なスライダーはプリセット化（GROUP_PRESETS in app.js、KERN_PRESETS/presetOf in kerning-ui.js）。スライダーは「カスタム」のときだけ表示。折りたたみ（details）は使わない方針を維持。
 - 容量：生成前は estimate（密な行列）を「生成前の目安」、生成後は estimateFontLab を「最適化後」として、縮小率と一緒に表示。超過時は kerningUI.applyPreset('capacity') のボタン。
 - 約物の設定（data-kpunct・data-ktcontrols2）はプリセット・カスタムと関係なく常に表示する（ユーザー指定）。字詰めはカスタムの中。
+- 「カーニングの調整」（limit・minimum・spacing、controls の 7 番目が 'a'）は常に表示（ユーザー指定）。生成済みで再生成が必要な設定を変えたら regenTimer で自動生成（invalidate しない）。
+- spacing は band と打ち消し合っていた：band で判定する組の desired に p.spacing を足す（core.banded_value も）。parametersChanged の約物の空き判定は /^keep(Period|Comma|Bracket|Middle)$/（keepSpacing を巻き込まない）。

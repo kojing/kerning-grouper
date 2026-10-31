@@ -23,3 +23,6 @@ console.log(report);
  const kn=on.pairs.filter(p=>p.jprio!=null&&p.jprio>=0),kept=kn.filter(p=>!p.lowPriority).length;assert.ok(kept>=kn.length*.16&&kept<kn.length*.35,'about the share is kept: '+kept+'/'+kn.length);
  assert.ok(on.pairs.filter(p=>p.jprio===0&&!p.lowPriority).length===0||on.pairs.filter(p=>p.jprio===0).every(p=>p.lowPriority||p.value===0||p.safe>0),'cross-script pairs are not kerned');
  console.log('kana priority ok',{judged:kn.length,kept,nonzero:[off.nonzeroGlyphPairs,on.nonzeroGlyphPairs]});}
+// 基準からの間隔調整 shifts the pairs judged against the reference band too (it used to cancel out with the band)
+{const s2={...settings,spacing:-30},r2=await generateKerning({...result,settings:s2});const id=c=>font.charToGlyph(c).index,P=(raw,x,y)=>raw.pairs.find(p=>p.a===id(x)&&p.b===id(y));
+ assert.ok(P(r2,'の','の').ideal<=P(raw,'の','の').ideal-20,'spacing −30 tightens the reference pair');const mean=r=>r.pairs.filter(p=>!p.rule).reduce((t,p)=>t+p.ideal,0)/r.pairs.length;assert.ok(mean(r2)<mean(raw)-15,'and the pairs overall');console.log('spacing ok');}
