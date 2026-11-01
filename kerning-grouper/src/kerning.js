@@ -23,7 +23,7 @@ export function valueFeatures(a,b,m,target,idx,met){const {desired:w0,optical,me
 // 0, pairs with fullwidth forms −1 (never kept, not counted). settings.jaPriority is the share of the kana pairs kept,
 // decided per glyph pair before classes are formed and merged (the kept pairs then form their own classes; deciding
 // per class pair as for Latin left 40% more bytes here). Pairs with punctuation keep their rule values (not judged).
-export function kanaScript(u){if(u>=0x3041&&u<=0x309F)return'H';if((u>=0x30A0&&u<=0x30FF)||(u>=0x31F0&&u<=0x31FF))return'K';if(u>=0xFF00&&u<=0xFFEF)return'F';return null;}
+export function kanaScript(u){if((u>=0x3041&&u<=0x3096)||u===0x309D||u===0x309E)return'H';if((u>=0x30A1&&u<=0x30FA)||(u>=0x30FC&&u<=0x30FE)||(u>=0x31F0&&u<=0x31FF))return'K';if((u>=0xFF10&&u<=0xFF19)||(u>=0xFF21&&u<=0xFF3A)||(u>=0xFF41&&u<=0xFF5A))return'F';return null;}// punctuation (・ ゠ ！ （ etc.) is not judged
 function kanaPriority(a,b,ideal){const sa=kanaScript(a.unicodes?.[0]??-1),sb=kanaScript(b.unicodes?.[0]??-1);if(!sa||!sb)return null;if(sa==='F'||sb==='F')return -1;if(sa!==sb)return 0;return Math.round((0.5+0.5*Math.min(1,Math.max(0,-ideal)/300))*1000)/1000;}
 // ---- priority: how likely a type designer is to kern this pair at all (kg-trainer priority.py, 1:1) ----
 const PCATS=['U','L','D','Q','S','H','B','Y','M','X'],PQ=new Set([...'\'"‘’‚‛“”„‟‹›«»']),PS=new Set([...'.,:;!?¡¿…·']),PH=new Set([...'-‐‑‒–—―']),PB=new Set([...'()[]{}']),PY=new Set([...'/\\|']);
