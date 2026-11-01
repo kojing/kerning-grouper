@@ -36,7 +36,7 @@ assert.equal(await page.locator('[data-search]').count(),0,'individual glyph sel
 await page.locator('[data-selectclear]').click();await settle();assert.equal(await count(),62,'clearing the exclusion restores the ranges');
 await settle();await page.waitForFunction(()=>document.querySelector('[data-kerning-grouper]').shadowRoot.querySelector('[data-run]').disabled===false);
 await page.locator('[data-tab=group]').click();await page.locator('[data-run]').click();await page.waitForFunction(()=>document.querySelector('[data-kerning-grouper]').shadowRoot.querySelector('.status').textContent.includes('分類完了'));
-assert.match(await page.locator('.status').textContent(),/62 字/);
+assert.match(await page.locator('.status').textContent(),/62グリフ/);
 const first=+await page.locator('[data-nright]').textContent();
 // presets: the grouping sliders show only for カスタム
 await page.locator('[data-tab=group]').click();assert.equal(await page.locator('[data-gpreset=fine]').getAttribute('aria-pressed'),'true','default preset');assert.equal(await page.locator('[data-gadv]').isVisible(),false,'sliders hidden for a preset');await page.locator('[data-gpreset=custom]').click();assert.equal(await page.locator('[data-gadv]').isVisible(),true,'カスタム shows the sliders');
