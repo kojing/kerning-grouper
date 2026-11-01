@@ -7,11 +7,11 @@ const b64c = font3 ? fs.readFileSync(font3).toString('base64') : '';
 const html = `<title>Kerning Grouper</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
-:root{--bg:#141519;--fg:#ededf2;--muted:#a4a7b4;--line:#3b3e48;--accent:#9d87ff;color-scheme:dark}
+:root{--bg:#e9ecef;--fg:#1d2129;--muted:#5b616d;--line:#d9dde3;--accent:#0e7a6b;color-scheme:light}
 body{font:13px/1.6 system-ui,-apple-system,"Hiragino Sans","Yu Gothic UI","Noto Sans JP",sans-serif;background:var(--bg);color:var(--fg);padding-block:20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .wrap{max-width:1450px;margin:0 auto;display:grid;gap:12px}
 .demo{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;font-size:13px;color:var(--muted)}
-.demo button{font:inherit;color:var(--bg);background:var(--accent);border:0;border-radius:8px;padding:7px 14px;font-weight:600;cursor:pointer}
+.demo button{font:inherit;color:#fff;background:var(--accent);border:0;border-radius:8px;padding:7px 14px;font-weight:600;cursor:pointer}
 .demo button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
 .demo b{color:var(--fg);font-weight:600}
 </style>
