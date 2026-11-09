@@ -82,7 +82,10 @@ const colors=['#5aa9ff','#ff7a6b','#c3b6ff','#c18cff','#ffb54d','#4cc9dc'];
 function category(g){return g.rules||(g.rules=new Set(rulesOf(g.unicodes)));}
 function forbidden(g){return !g.commands.length||g.advance===0||g.name==='.notdef'||g.unicodes.some(isKanji)||g.unicodes.some(u=>/^[\p{Mark}\p{Separator}\p{Control}]$/u.test(String.fromCodePoint(u)));}
 function display(g){const u=g.unicodes.find(u=>u>32);return u?String.fromCodePoint(u):g.name||'#'+g.id;}
-export function mount(host,options={}){if(host.__kerning)return host.__kerning;const shadow=host.attachShadow({mode:'open'});shadow.innerHTML=`<style>${CSS}</style><div class="app"><header><div><div class="eyebrow">FontLab 8 のためのカーニング支援</div><h1>Kerning Grouper</h1><div class="muted">輪郭と余白から、左右のグループとグループカーニングをつくる。</div></div><span class="badge">ブラウザ内処理</span></header>
+export function mount(host,options={}){if(host.__kerning)return host.__kerning;const shadow=host.attachShadow({mode:'open'});
+ // Keys typed inside the tool stay inside: from outside the shadow root they look like keys on a plain <div>, so page
+ // shortcuts (Confluence: e, j/k, /, ? …) would fire while typing in the tool's fields.
+ for(const t of ['keydown','keypress','keyup'])host.addEventListener(t,e=>e.stopPropagation());shadow.innerHTML=`<style>${CSS}</style><div class="app"><header><div><div class="eyebrow">FontLab 8 のためのカーニング支援</div><h1>Kerning Grouper</h1><div class="muted">輪郭と余白から、左右のグループとグループカーニングをつくる。</div></div><span class="badge">ブラウザ内処理</span></header>
 <div class="toolbar"><label class="file">OTF / TTF を開く<input class="hidden" type="file" data-file accept=".otf,.ttf"></label><button data-resetsettings title="判定条件・カーニングの設定・対象の字などを初期値に戻します">設定を初期値に戻す</button><label class="helptoggle"><input type="checkbox" data-helpon> 説明を表示</label><span class="tb-font" data-font>フォント未読込</span></div>
 <div class="status" role="status" aria-live="polite">フォントを選択、またはここにドロップしてください。</div>
 <section class="preview" data-kpreview aria-label="校正のプレビュー"></section>

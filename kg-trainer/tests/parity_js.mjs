@@ -7,5 +7,5 @@ const bytes=fs.readFileSync(fontPath);const font=opentype.parse(bytes.buffer.sli
 const items=[...new Set(chars)].map(ch=>{const g=font.charToGlyph(ch);return{id:g.index,name:g.name,unicodes:g.unicodes,advance:g.advanceWidth*1000/upm,segments:flatten(g.path.commands,1000/upm,.35)};});
 const seg=ch=>{const g=font.charToGlyph(ch);return g&&g.index?flatten(g.path.commands,1000/upm,.35):null;};const os2=font.tables.os2||{};const metrics=fontMetrics(seg('H'),seg('x'),(os2.sCapHeight||0)*1000/upm,(os2.sxHeight||0)*1000/upm);
 const groups={right:items.map(g=>[g.id]),left:items.map(g=>[g.id])};
-const raw=await generateKerning({items,groups,metrics,settings:{...kernDefaults,...extra,references:refs}});
+const raw=await generateKerning({items,groups,metrics,settings:{...kernDefaults,unifyScripts:false,...extra,references:refs}});
 console.log(JSON.stringify({segments:Object.fromEntries(items.map(g=>[g.id,g.segments.length])),metrics,pairs:raw.pairs.map(p=>({a:p.a,b:p.b,ideal:p.ideal,learned:p.learned,toolValue:p.toolValue,priority:p.priority,safe:p.safe,gap:p.gap,before:p.opticalBefore,target:p.opticalTarget}))}));

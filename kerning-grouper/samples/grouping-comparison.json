@@ -8,13 +8,13 @@
       "first": 174,
       "second": 172
     },
-    "classPairs": 5998,
+    "classPairs": 7985,
     "exceptions": 2,
     "warnings": 7278,
     "estimatedBytes": 63182,
     "modelRmsBefore": 218.02512935559736,
-    "modelRmsAfter": 196.7440581570216,
-    "seconds": 2,
+    "modelRmsAfter": 185.49815648233178,
+    "seconds": 3,
     "samples": [
       {
         "text": "のの",
@@ -68,10 +68,10 @@
     "optionZeroSaturated": {
       "saturatedClasses": 7217,
       "zeroGroups": {
-        "first": 10,
-        "second": 12
+        "first": 7,
+        "second": 5
       },
-      "estimatedBytes": 55570
+      "estimatedBytes": 58954
     },
     "defaultNoAutoExceptions": {
       "exceptions": 0,
@@ -81,8 +81,8 @@
         "first": 0,
         "second": 0
       },
-      "modelRmsAfter": 196.7,
-      "modelRmsWithExceptions": 196.7,
+      "modelRmsAfter": 185.5,
+      "modelRmsWithExceptions": 185.5,
       "estimatedBytes": 63142
     }
   },
@@ -95,13 +95,13 @@
       "first": 162,
       "second": 147
     },
-    "classPairs": 5323,
-    "exceptions": 962,
+    "classPairs": 7083,
+    "exceptions": 997,
     "warnings": 7278,
-    "estimatedBytes": 55458,
+    "estimatedBytes": 55616,
     "modelRmsBefore": 218.0251293555973,
-    "modelRmsAfter": 196.7481454365158,
-    "seconds": 2,
+    "modelRmsAfter": 185.50296083389264,
+    "seconds": 3,
     "samples": [
       {
         "text": "のの",
@@ -155,10 +155,10 @@
     "optionZeroSaturated": {
       "saturatedClasses": 6266,
       "zeroGroups": {
-        "first": 10,
-        "second": 10
+        "first": 7,
+        "second": 5
       },
-      "estimatedBytes": 44668
+      "estimatedBytes": 47122
     },
     "defaultNoAutoExceptions": {
       "exceptions": 0,
@@ -168,8 +168,8 @@
         "first": 0,
         "second": 0
       },
-      "modelRmsAfter": 196.6,
-      "modelRmsWithExceptions": 196.7,
+      "modelRmsAfter": 185.4,
+      "modelRmsWithExceptions": 185.5,
       "estimatedBytes": 50840
     }
   },
@@ -182,13 +182,13 @@
       "first": 134,
       "second": 123
     },
-    "classPairs": 4205,
-    "exceptions": 2379,
+    "classPairs": 5614,
+    "exceptions": 2438,
     "warnings": 7278,
-    "estimatedBytes": 46502,
+    "estimatedBytes": 46762,
     "modelRmsBefore": 218.02512935559741,
-    "modelRmsAfter": 196.76443494447156,
-    "seconds": 2,
+    "modelRmsAfter": 185.52235905816514,
+    "seconds": 3,
     "samples": [
       {
         "text": "のの",
@@ -242,10 +242,10 @@
     "optionZeroSaturated": {
       "saturatedClasses": 4666,
       "zeroGroups": {
-        "first": 10,
-        "second": 10
+        "first": 7,
+        "second": 5
       },
-      "estimatedBytes": 30934
+      "estimatedBytes": 32970
     },
     "defaultNoAutoExceptions": {
       "exceptions": 0,
@@ -255,8 +255,8 @@
         "first": 0,
         "second": 0
       },
-      "modelRmsAfter": 196.9,
-      "modelRmsWithExceptions": 196.8,
+      "modelRmsAfter": 185.7,
+      "modelRmsWithExceptions": 185.5,
       "estimatedBytes": 36072
     }
   },
@@ -269,13 +269,13 @@
       "first": 87,
       "second": 83
     },
-    "classPairs": 1877,
-    "exceptions": 4582,
+    "classPairs": 2781,
+    "exceptions": 4884,
     "warnings": 7278,
-    "estimatedBytes": 36762,
+    "estimatedBytes": 37940,
     "modelRmsBefore": 218.02512935559793,
-    "modelRmsAfter": 196.78491562871022,
-    "seconds": 2,
+    "modelRmsAfter": 185.54471885645907,
+    "seconds": 3,
     "samples": [
       {
         "text": "のの",
@@ -329,10 +329,10 @@
     "optionZeroSaturated": {
       "saturatedClasses": 1968,
       "zeroGroups": {
-        "first": 8,
-        "second": 10
+        "first": 6,
+        "second": 4
       },
-      "estimatedBytes": 14246
+      "estimatedBytes": 15626
     },
     "defaultNoAutoExceptions": {
       "exceptions": 0,
@@ -342,8 +342,8 @@
         "first": 0,
         "second": 0
       },
-      "modelRmsAfter": 199.3,
-      "modelRmsWithExceptions": 196.8,
+      "modelRmsAfter": 188.1,
+      "modelRmsWithExceptions": 185.5,
       "estimatedBytes": 17376
     }
   }

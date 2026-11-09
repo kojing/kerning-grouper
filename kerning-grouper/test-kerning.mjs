@@ -56,10 +56,12 @@ assert.ok(Math.abs(val(out,'AV'))>0&&val(out,'AV')<0,'AV is still kerned');
 assert.ok(rawOn.pairs.every(p=>{const q=rawOff.pairs.find(x=>x.a===p.a&&x.b===p.b);return p.protected||p.safe!==null&&p.ideal===Math.round(p.safe)||Math.abs(p.ideal)<=Math.abs(q.ideal)+1;}),'the band never makes a value larger');
 assert.equal(kernDefaults.optical,60);assert.equal(kernDefaults.limit,100);assert.equal(kernDefaults.threshold,20);assert.equal(kernDefaults.keepSpacing,true);}
 {// Learned value model (v0.5.2): Latin letter pairs the tool kerns get their size from the model; nothing else changes.
-const learnedPairs=raw.pairs.filter(p=>p.learned);assert.ok(learnedPairs.length>50,'the model is used on Latin pairs');
+// 欧文と和文を同じ基準で詰める (default since v0.6.3) turns it off; the model is checked with it off.
+assert.equal(kernDefaults.unifyScripts,true);assert.equal(raw.pairs.filter(p=>p.learned).length,0,'no learned values when unified');
+const rawLm=await generateKerning({...result,settings:{...kernDefaults,unifyScripts:false}},()=>{},()=>false);const learnedPairs=rawLm.pairs.filter(p=>p.learned);assert.ok(learnedPairs.length>50,'the model is used on Latin pairs');
 assert.ok(learnedPairs.every(p=>/^(UU|UL|LU|LL)$/.test(p.kind)&&!p.protected&&Math.abs(p.toolValue)>=10),'only Latin letter pairs the tool kerns');
-assert.ok(raw.pairs.every(p=>p.safe===null||p.protected||p.ideal>=p.safe),'learned values keep the minimum gap');
-const offL={...kernDefaults,learned:false},rawL=await generateKerning({...result,settings:offL});
+assert.ok(rawLm.pairs.every(p=>p.safe===null||p.protected||p.ideal>=p.safe),'learned values keep the minimum gap');
+const offL={...kernDefaults,unifyScripts:false,learned:false},rawL=await generateKerning({...result,settings:offL});
 assert.ok(rawL.pairs.every(p=>!p.learned));for(const p of learnedPairs){const q=rawL.pairs.find(x=>x.a===p.a&&x.b===p.b);assert.equal(q.ideal,p.toolValue);}
-assert.ok(raw.pairs.filter(p=>!p.learned).every(p=>rawL.pairs.find(x=>x.a===p.a&&x.b===p.b).ideal===p.ideal),'pairs outside the model are unchanged');}
+assert.ok(rawLm.pairs.filter(p=>!p.learned).every(p=>rawL.pairs.find(x=>x.a===p.a&&x.b===p.b).ideal===p.ideal),'pairs outside the model are unchanged');}
 console.log(JSON.stringify({tests:'passed',pairs:out.pairs.length,classPairs:out.nonzero,exceptions:out.exceptions.length,errorBefore:opticalError(out.pairs,false),errorAfter:opticalError(out.pairs,true),mechanicalTriangle:mv.ideal,opticalTriangle:ov.ideal,sample},null,2));
