@@ -6,12 +6,12 @@ import {createEngine} from './src/engine.js';
 import {defaults} from './src/core.js';
 import {generateKerning,resolveKerning,kernDefaults} from './src/kerning.js';
 import {fontlabName} from './src/fontlab-names.js';
-import {glyphNamer,buildVfm,parseVfm,defaultMaster,hasOwnNames} from './src/vfm.js';
+import {glyphNamer,fontlabNameFor,nameIndex,buildVfm,parseVfm,defaultMaster,hasOwnNames} from './src/vfm.js';
 
 // FontLab's names for glyphs without names of their own (checked against a real FontLab export of a CID font).
 assert.equal(fontlabName(0x41),'A');assert.equal(fontlabName(0x3B6),'zeta');assert.equal(fontlabName(0x201D),'quotedblright');
 assert.equal(fontlabName(0xB2),'twosuperior');assert.equal(fontlabName(0xB5),'uni00B5');assert.equal(fontlabName(0x2500),'uni2500');assert.equal(fontlabName(0xFB01),'fi');
-assert.equal(fontlabName(0x3042),'uni3042');assert.equal(fontlabName(0x20B9F),'u20B9F');assert.equal(fontlabName(0),'uni0000');
+assert.equal(fontlabName(0x3042),'uni3042');assert.equal(fontlabNameFor(0x3042),'a-hira');assert.equal(fontlabNameFor(0x30A2),'a-kata');assert.equal(fontlabNameFor(0x30A2,'production'),'uni30A2');assert.equal(fontlabNameFor(0x41),'A');assert.equal(fontlabName(0x20B9F),'u20B9F');assert.equal(fontlabName(0),'uni0000');
 
 const bytes=fs.readFileSync('samples/KGJapaneseTest-Regular.ttf');const font=opentype.parse(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength));
 const glyphs=[...'AVToaのカ、「」'].map(ch=>{const g=font.charToGlyph(ch);return{id:g.index,name:g.name,unicodes:g.unicodes,advance:g.advanceWidth,commands:g.path.commands,bounds:g.getBoundingBox()};});
@@ -32,7 +32,7 @@ if(own)assert.equal(n.name(id('A')),font.charToGlyph('A').name);
 
 // A CID-keyed font (no glyph names): names come from the lowest code point.
 const cid={tables:{cff:{topDict:{ros:['Adobe','Japan1',6]}}},names:{typographicSubfamily:{en:'M'}},glyphs:{get:i=>({name:'gid'+i,unicodes:i===1?[0xA0,0x20]:i===2?[0x3042]:[],advanceWidth:500,getBoundingBox:()=>({x1:0,x2:400,y1:0,y2:700})})}};
-assert.equal(hasOwnNames(cid),false);assert.equal(defaultMaster(cid),'M');const cn=glyphNamer(cid);assert.equal(cn.name(1),'space');assert.equal(cn.name(2),'uni3042');
+assert.equal(hasOwnNames(cid),false);assert.equal(defaultMaster(cid),'M');const cn=glyphNamer(cid);assert.equal(cn.name(1),'space');assert.equal(cn.name(2),'a-hira','FontLab friendly names by default');assert.equal(glyphNamer(cid,null,null,'production').name(2),'uni3042','production names');
 
 // With a reference VFM: its master and metrics are kept, only that master's pairs are replaced; unknown names are matched by metrics.
 const ref=parseVfm(JSON.stringify({dataType:'com.fontlab.metrics',masters:{Bold:{pairs:{X:{Y:'-5'}},extra:1},Light:{pairs:{X:{Y:'-9'}}}},metrics:{space:{layers:{Bold:{width:500}}},renamed:{layers:{Bold:{lsb:0,rsb:100,width:500,xmin:0,xmax:400,ymin:0,ymax:700}}}},upm:1000}));
@@ -73,3 +73,6 @@ console.log('VFM tests passed',JSON.stringify({ownNames:own,master,pairs:out.cou
  const p0={...defaults,step:6};const plain=await cluster(items,'right',p0,{fixed:[[0],[1]]});assert.equal(plain.length,3,'without absorb: two locked groups + the rest');
  const abs=await cluster(items,'right',{...p0,absorbFixed:true},{fixed:[[0],[1]]});assert.equal(abs.length,2,'with absorb the identical glyphs join a fixed group');assert.ok(abs.every(g=>!(g.includes(0)&&g.includes(1))),'fixed groups stay apart');}
 console.log('VFM read tests passed');
+// a .vfm written with FontLab's friendly names (a-hira) is read for the same glyphs as one with production names
+{const cid3={...cid,glyphs:{...cid.glyphs,length:3}};const ref={data:{metrics:{'a-hira':{layers:{M:{}}}},masters:{M:{}}},names:new Set(['a-hira','space'])};const idx=nameIndex(cid3,ref,'M');assert.equal(idx('a-hira'),2,'friendly name read');assert.equal(idx('uni3042'),2,'production name read');
+ const withRef=glyphNamer(cid,{names:new Set(['uni3042','space']),data:{metrics:{}}},'M','friendly');assert.equal(withRef.name(2),'uni3042','a reference .vfm with production names keeps its names');console.log('friendly/production names ok');}

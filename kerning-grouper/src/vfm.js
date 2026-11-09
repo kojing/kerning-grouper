@@ -8,6 +8,10 @@
 // FontLab itself writes for a CID-keyed font. Glyph names are FontLab's: the font's own names when it has
 // them, otherwise the name FontLab derives from the lowest code point (fontlab-names.js).
 import {fontlabName} from './fontlab-names.js';
+import {FONTLAB_FRIENDLY} from './fontlab-friendly.js';
+// FontLab names a glyph without a name of its own either way, depending on its glyph-name setting:
+// 'friendly' (a-hira, a-kata, comma-han …) or 'production' (uni3042 …). Both share the Latin names (A, space …).
+export function fontlabNameFor(u,scheme='friendly'){return scheme==='production'?fontlabName(u):FONTLAB_FRIENDLY.get(u)??fontlabName(u);}
 
 // Does the font carry real glyph names that FontLab keeps (named CFF charset, TrueType post format 2)?
 export function hasOwnNames(font){const cff=font.tables?.cff;if(cff){return !cff.topDict?.ros;}return font.tables?.post?.version===2;}
@@ -20,10 +24,12 @@ export function parseVfm(text){let v;try{v=JSON.parse(text);}catch{throw Error('
 
 // glyph id → FontLab glyph name. With a reference VFM, a computed name missing from it is looked up by
 // metrics (advance width and bounding box, unique match) before giving up.
-export function glyphNamer(font,reference=null,master=null){const own=hasOwnNames(font),cache=new Map(),stats={own,computed:0,byMetrics:0,missing:[]};
+export function glyphNamer(font,reference=null,master=null,scheme='friendly'){const own=hasOwnNames(font),cache=new Map(),stats={own,computed:0,byMetrics:0,missing:[]};
  let bySig=null;const sigOf=(w,b)=>[w,b.x1,b.x2,b.y1,b.y2].map(Math.round).join(',');
  const fromMetrics=g=>{if(!reference?.data?.metrics)return null;if(!bySig){bySig=new Map();for(const [nm,v]of Object.entries(reference.data.metrics)){const L=v?.layers?.[master]||Object.values(v?.layers||{})[0];if(!L)continue;const s=[L.width,L.xmin??0,L.xmax??0,L.ymin??0,L.ymax??0].join(',');bySig.set(s,bySig.has(s)?null:nm);}}const b=g.getBoundingBox?g.getBoundingBox():{x1:0,x2:0,y1:0,y2:0};return bySig.get(sigOf(g.advanceWidth,b))||null;};
- const name=id=>{if(cache.has(id))return cache.get(id);const g=font.glyphs.get(id);let nm=own&&g.name?g.name:null;if(!nm){const us=[...(g.unicodes||[])].sort((a,b)=>a-b);nm=us.length?fontlabName(us[0]):(g.name||'gid'+id);stats.computed++;}
+ const name=id=>{if(cache.has(id))return cache.get(id);const g=font.glyphs.get(id);let nm=own&&g.name?g.name:null;if(!nm){const us=[...(g.unicodes||[])].sort((a,b)=>a-b);nm=us.length?fontlabNameFor(us[0],scheme):(g.name||'gid'+id);stats.computed++;
+   // a reference .vfm written with the other setting: take its name for the same code point
+   if(us.length&&reference&&reference.names.size&&!reference.names.has(nm)){const o=fontlabNameFor(us[0],scheme==='production'?'friendly':'production');if(reference.names.has(o))nm=o;}}
   if(reference&&reference.names.size&&!reference.names.has(nm)){const alt=fromMetrics(g);if(alt){nm=alt;stats.byMetrics++;}else stats.missing.push(nm);}
   cache.set(id,nm);return nm;};
  return{name,stats};}
@@ -108,7 +114,7 @@ function gsubStep(font,gid,tag,n=1){const gs=font.tables?.gsub;if(!gs)return und
 // unencoded glyph of a CID-keyed font; the gid itself otherwise); "<base>.<feature>[_<feature>…]" or
 // "<base>.<n>.<feature>" (FontLab names an unencoded glyph after the glyph and GSUB feature that reach it); then
 // the advance width + bounding box recorded in the .vfm (unique match).
-export function nameIndex(font,ref,master){const n=glyphNamer(font),idOf=new Map();for(let i=0;i<font.glyphs.length;i++){const nm=n.name(i);if(!idOf.has(nm))idOf.set(nm,i);}
+export function nameIndex(font,ref,master){const n=glyphNamer(font),p=glyphNamer(font,null,null,'production'),idOf=new Map();for(let i=0;i<font.glyphs.length;i++){for(const nm of [n.name(i),p.name(i)])if(!idOf.has(nm))idOf.set(nm,i);}
  const metrics=ref.data.metrics||{};let bySig=null,byCid=null;const memo=new Map();
  const sigOf=i=>{const g=font.glyphs.get(i),b=g.getBoundingBox();return[g.advanceWidth,b.x1,b.x2,b.y1,b.y2].map(Math.round).join(',');};
  const fromCid=c=>{if(!font.kgCids)return c<font.glyphs.length?c:undefined;if(!byCid){byCid=new Map();font.kgCids.forEach((cid,g)=>byCid.set(cid,g));}return byCid.get(c);};
