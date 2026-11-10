@@ -6,13 +6,13 @@
     "first": 174,
     "second": 172
   },
-  "classPairs": 7657,
+  "classPairs": 8215,
   "exceptions": 0,
-  "warnings": 7278,
+  "warnings": 11,
   "estimatedBytes": 63142,
-  "modelRmsBefore": 218.02512935559736,
-  "modelRmsAfter": 188.75145469396352,
-  "seconds": 3,
+  "modelRmsBefore": 213.52228820401962,
+  "modelRmsAfter": 160.92097114105312,
+  "seconds": 2,
   "samples": [
     {
       "text": "のの",
@@ -46,13 +46,13 @@
     },
     {
       "text": "「の",
-      "value": -35,
+      "value": -61,
       "safe": -345,
       "warning": ""
     },
     {
       "text": "の」",
-      "value": -31,
+      "value": -59,
       "safe": -349,
       "warning": ""
     },
@@ -60,7 +60,7 @@
       "text": "。、",
       "value": 0,
       "safe": -702,
-      "warning": "limited"
+      "warning": ""
     }
   ]
 }

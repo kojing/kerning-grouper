@@ -54,7 +54,7 @@ const offS={...kernDefaults,keepSpacing:false,learned:false},rawOff=await genera
 assert.ok(outOn.nonzero<outOff.nonzero,'the band leaves more pairs at 0');
 assert.ok(Math.abs(val(out,'AV'))>0&&val(out,'AV')<0,'AV is still kerned');
 assert.ok(rawOn.pairs.every(p=>{const q=rawOff.pairs.find(x=>x.a===p.a&&x.b===p.b);return p.protected||p.safe!==null&&p.ideal===Math.round(p.safe)||Math.abs(p.ideal)<=Math.abs(q.ideal)+1;}),'the band never makes a value larger');
-assert.equal(kernDefaults.optical,60);assert.equal(kernDefaults.limit,100);assert.equal(kernDefaults.threshold,20);assert.equal(kernDefaults.keepSpacing,true);}
+assert.equal(kernDefaults.optical,60);assert.equal(kernDefaults.limit,1000,'no hard cap');assert.deepEqual([kernDefaults.knee,kernDefaults.slope,kernDefaults.jaStrength,kernDefaults.bay],[40,40,85,100]);assert.equal(kernDefaults.threshold,20);assert.equal(kernDefaults.keepSpacing,true);}
 {// Learned value model (v0.5.2): Latin letter pairs the tool kerns get their size from the model; nothing else changes.
 // 欧文と和文を同じ基準で詰める (default since v0.6.3) turns it off; the model is checked with it off.
 assert.equal(kernDefaults.unifyScripts,true);assert.equal(raw.pairs.filter(p=>p.learned).length,0,'no learned values when unified');
@@ -65,3 +65,6 @@ const offL={...kernDefaults,unifyScripts:false,learned:false},rawL=await generat
 assert.ok(rawL.pairs.every(p=>!p.learned));for(const p of learnedPairs){const q=rawL.pairs.find(x=>x.a===p.a&&x.b===p.b);assert.equal(q.ideal,p.toolValue);}
 assert.ok(rawLm.pairs.filter(p=>!p.learned).every(p=>rawL.pairs.find(x=>x.a===p.a&&x.b===p.b).ideal===p.ideal),'pairs outside the model are unchanged');}
 console.log(JSON.stringify({tests:'passed',pairs:out.pairs.length,classPairs:out.nonzero,exceptions:out.exceptions.length,errorBefore:opticalError(out.pairs,false),errorAfter:opticalError(out.pairs,true),mechanicalTriangle:mv.ideal,opticalTriangle:ov.ideal,sample},null,2));
+// easing of large values and enclosed bays (v0.6.5)
+{const {easeLarge,bayFill}=await import('./src/kerning.js');assert.equal(easeLarge(-30,40,40),-30);assert.equal(easeLarge(-140,40,40),-80);assert.equal(easeLarge(90,40,40),60);
+ assert.deepEqual(bayFill([10,40,60,40,10],100,40),[10,10,10,10,10],'an enclosed bay is filled');assert.deepEqual(bayFill([10,10,200,200,200],100,40),[10,10,200,200,200],'an overhang open at one end is not');assert.deepEqual(bayFill([10,20,30,40],100,40),[10,20,30,40],'a diagonal is not');console.log('ease and bay ok');}
