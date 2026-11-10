@@ -26,3 +26,7 @@ console.log(report);
 // 基準からの間隔調整 shifts the pairs judged against the reference band too (it used to cancel out with the band)
 {const s2={...settings,spacing:-30},r2=await generateKerning({...result,settings:s2});const id=c=>font.charToGlyph(c).index,P=(raw,x,y)=>raw.pairs.find(p=>p.a===id(x)&&p.b===id(y));
  assert.ok(P(r2,'の','の').ideal<=P(raw,'の','の').ideal-20,'spacing −30 tightens the reference pair');const mean=r=>r.pairs.filter(p=>!p.rule).reduce((t,p)=>t+p.ideal,0)/r.pairs.length;assert.ok(mean(r2)<mean(raw)-15,'and the pairs overall');console.log('spacing ok');}
+// 和文の詰める強さ scales kana pairs only; pairs after a small kana are not kept by the kana share
+{const id=c=>font.charToGlyph(c).index,P=(raw,x,y)=>raw.pairs.find(p=>p.a===id(x)&&p.b===id(y));const full=await generateKerning({...result,settings:{...settings,jaStrength:100,tsume:false,limit:1000}}),half=await generateKerning({...result,settings:{...settings,jaStrength:50,tsume:false,limit:1000}});
+ const q=full.pairs.find(p=>p.jprio>0&&p.ideal<-40&&(p.safe==null||p.ideal>p.safe+5));if(q){const h=half.pairs.find(p=>p.a===q.a&&p.b===q.b);assert.ok(Math.abs(h.ideal-q.ideal/2)<=2||h.ideal===Math.ceil(h.safe),'kana values are scaled: '+q.ideal+' → '+h.ideal);}
+ const sm=P(full,'っ','た')||P(full,'ゃ','く');if(sm)assert.equal(sm.jprio,0,'after a small kana: not kept by the share');console.log('kana strength ok');}
