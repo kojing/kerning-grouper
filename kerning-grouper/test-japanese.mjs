@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import opentype from 'opentype.js';
 import {createEngine} from './src/engine.js';
 import {defaults,estimate} from './src/core.js';
-import {generateKerning,resolveKerning,kernDefaults,opticalError} from './src/kerning.js';
+import {generateKerning,resolveKerning,kernDefaults,opticalError,applyCurves} from './src/kerning.js';
 import {japaneseSample,japaneseReferences} from './src/japanese.js';
 const bytes=fs.readFileSync('samples/KGJapaneseTest-Regular.ttf');const font=opentype.parse(bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength));
 const glyphs=[...japaneseSample].map(ch=>{const g=font.charToGlyph(ch);assert.notEqual(g.index,0,ch);return {id:g.index,name:g.name,unicodes:g.unicodes,advance:g.advanceWidth,commands:g.path.commands,bounds:g.getBoundingBox()};});
@@ -27,6 +27,9 @@ console.log(report);
 {const s2={...settings,spacing:-30},r2=await generateKerning({...result,settings:s2});const id=c=>font.charToGlyph(c).index,P=(raw,x,y)=>raw.pairs.find(p=>p.a===id(x)&&p.b===id(y));
  assert.ok(P(r2,'の','の').ideal<=P(raw,'の','の').ideal-20,'spacing −30 tightens the reference pair');const mean=r=>r.pairs.filter(p=>!p.rule).reduce((t,p)=>t+p.ideal,0)/r.pairs.length;assert.ok(mean(r2)<mean(raw)-15,'and the pairs overall');console.log('spacing ok');}
 // 和文の詰める強さ scales kana pairs only; pairs after a small kana are not kept by the kana share
-{const id=c=>font.charToGlyph(c).index,P=(raw,x,y)=>raw.pairs.find(p=>p.a===id(x)&&p.b===id(y));const full=await generateKerning({...result,settings:{...settings,jaStrength:100,tsume:false,limit:1000,knee:1000,slope:100}}),half=await generateKerning({...result,settings:{...settings,jaStrength:50,tsume:false,limit:1000,knee:1000,slope:100}});
+{const id=c=>font.charToGlyph(c).index,P=(raw,x,y)=>raw.pairs.find(p=>p.a===id(x)&&p.b===id(y));const full=await generateKerning({...result,settings:{...settings,jaStrength:100,tsume:false,limit:1000,knee:1000,slope:100,jaKnee:1000,jaSlope:100}}),half=await generateKerning({...result,settings:{...settings,jaStrength:50,tsume:false,limit:1000,knee:1000,slope:100,jaKnee:1000,jaSlope:100}});
  const q=full.pairs.find(p=>p.jprio>0&&p.ideal<-40&&(p.safe==null||p.ideal>p.safe+5));if(q){const h=half.pairs.find(p=>p.a===q.a&&p.b===q.b);assert.ok(Math.abs(h.ideal-q.ideal/2)<=2||h.ideal===Math.ceil(h.safe),'kana values are scaled: '+q.ideal+' → '+h.ideal);}
  const sm=P(full,'っ','た')||P(full,'ゃ','く');if(sm)assert.equal(sm.jprio,0,'after a small kana: not kept by the share');console.log('kana strength ok');}
+// the curve editor re-applies the curves without measuring again: it must match a full regeneration
+{const alt={...settings,strength:130,knee:20,slope:60,jaStrength:70,jaKnee:60,jaSlope:25};const regen=await generateKerning({...result,settings:alt}),fast=applyCurves(raw,alt);const key=q=>q.a+':'+q.b,m=new Map(regen.pairs.map(q=>[key(q),q]));let diff=0,ja=0;for(const q of fast.pairs){const r=m.get(key(q));if(r.ideal!==q.ideal||r.jprio!==q.jprio)diff++;if(q.ja)ja++;}assert.equal(diff,0,'applyCurves = regenerate');assert.ok(ja>0);
+ const lat=applyCurves(raw,{...settings,strength:50}),changedJa=lat.pairs.filter((q,i)=>q.ja&&q.ideal!==raw.pairs[i].ideal).length;assert.equal(changedJa,0,'the Latin curve does not move Japanese pairs');console.log('curves ok',{ja});}
